@@ -1,7 +1,5 @@
 # Hangman game
 # ArgenisRO
-#
-# Test Commit
 # 6.00.1x hangman example with my own little twist.
 
 
@@ -43,12 +41,12 @@ def getGuessedWord(hiddenWord, lettersGuessed):
     '''
     Returns the guessed words so far. Adds a underscore for unguessed letters.
     '''
-    guesedCorrect = ''
+    guesedCorrect = ' '
     for letter in hiddenWord:
         if letter in lettersGuessed:
             guesedCorrect += letter
         else:
-            guesedCorrect += '_ '
+            guesedCorrect += ' _ '
     return guesedCorrect
 
 
@@ -71,9 +69,10 @@ def getUserInputGuess():
         try:
             userGuesses = int(input("How many guesses would you like to have? "))
             break
-        except:
+        except(ValueError):
             print("Please enter a valid number.")
             print("-------------")
+
     return userGuesses
 
 
@@ -82,7 +81,7 @@ def getUserInputLetter():
     Makes sure the user is inputing only ONE character from the alphabet.
     '''
     while True:
-        userInput = input("Please guess a letter: ")
+        userInput = input("Guess a letter: ")
         if userInput.isalpha():
             if len(userInput) == 1:
                 return userInput
@@ -90,18 +89,16 @@ def getUserInputLetter():
         print("-------------")
 
 
-# made these into their own functions incase I'd like to use them later
 def alreadyGuessed(hiddenWord, lettersGuessed):
-    return "You already guessed that letter: " + getGuessedWord(hiddenWord, lettersGuessed)
+    return "\033[93mYou already guessed that letter: \033[0m" + getGuessedWord(hiddenWord, lettersGuessed)
 
 
 def notGuessed(hiddenWord, lettersGuessed):
-    return "That letter is NOT in my word: " + getGuessedWord(hiddenWord, lettersGuessed)
+    return "\033[91mThat letter is NOT in my word: \033[0m" + getGuessedWord(hiddenWord, lettersGuessed)
 
 
 def goodGuessed(hiddenWord, lettersGuessed):
-    return "Good guess:" + getGuessedWord(hiddenWord, lettersGuessed)
-# ___________
+    return "\033[92mGood: \033[0m" + getGuessedWord(hiddenWord, lettersGuessed)
 
 
 def hangman(hiddenWord):
@@ -111,9 +108,11 @@ def hangman(hiddenWord):
     print("-------------")
     print("Welcome to the Hangman Game!")
     print("-------------")
+
     userGuesses = getUserInputGuess()
     numofGussesLeft = int(userGuesses)
     lettersGuessed = []
+
     if numofGussesLeft < 3:  # For brave people only
         print("You are a brave one. Are you feeling confident?")
     print("-------------")
@@ -140,7 +139,6 @@ def hangman(hiddenWord):
                 print(alreadyGuessed(hiddenWord, lettersGuessed))
 
             else:
-                # fixed 'good guess' showing up even with the letter already guessed.
                 lettersGuessed.append(userInput)
                 print(goodGuessed(hiddenWord, lettersGuessed))
         else:
