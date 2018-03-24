@@ -66,12 +66,13 @@ def getUserInputGuess():
     Returns the user for input making sure it's a proper whole number.
     '''
     while True:  # constantly check until the user provides a proper whole number.
-        try:
+        try:  # TODO: Fix to work with negative numbers.
             userGuesses = int(input("How many guesses would you like to have? "))
             break
         except(ValueError):
             print("Please enter a valid number.")
-            print("-------------")
+            print("______________")
+            continue
 
     return userGuesses
 
@@ -86,7 +87,7 @@ def getUserInputLetter():
             if len(userInput) == 1:
                 return userInput
         print("Please enter only ONE letter from a - z")
-        print("-------------")
+        print("______________")
 
 
 def alreadyGuessed(hiddenWord, lettersGuessed):
@@ -105,9 +106,7 @@ def hangman(hiddenWord):
     '''
     Hangman Game
     '''
-    print("-------------")
-    print("Welcome to the Hangman Game!")
-    print("-------------")
+    print(format('Hangman', ">23s"))
 
     userGuesses = getUserInputGuess()
     numofGussesLeft = int(userGuesses)
@@ -115,10 +114,10 @@ def hangman(hiddenWord):
 
     if numofGussesLeft < 3:  # For brave people only
         print("You are a brave one. Are you feeling confident?")
-    print("-------------")
+    print("______________")
     print("I am thinking of a word that is", len(hiddenWord), "letters long.")
     while True:
-        print("-------------")
+        print("______________")
 
         if numofGussesLeft == 0:
             print("You Lost!")
