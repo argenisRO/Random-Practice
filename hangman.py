@@ -7,6 +7,7 @@ import random
 import string as s
 
 WORDFILE = "./files/words.txt"
+LineSeperate = "\n______________"
 
 
 def loadWords():
@@ -47,7 +48,7 @@ def getGuessedWord(hiddenWord, lettersGuessed):
             guesedCorrect += letter
         else:
             guesedCorrect += ' _ '
-    return guesedCorrect
+    return guesedCorrect + LineSeperate
 
 
 def getAvailableLetters(lettersGuessed):
@@ -65,16 +66,19 @@ def getUserInputGuess():
     '''
     Returns the user for input making sure it's a proper whole number.
     '''
-    while True:  # constantly check until the user provides a proper whole number.
-        try:  # TODO: Fix to work with negative numbers.
+    while True:  # constantly check until the user provides a proper positive number.
+        try:
             userGuesses = int(input("How many guesses would you like to have? "))
-            break
+            if userGuesses > 0:
+                break
+            else:
+                print("Please enter a valid positive number." + LineSeperate)
         except(ValueError):
-            print("Please enter a valid number.")
-            print("______________")
+            print("Please enter a valid positive number." + LineSeperate)
             continue
 
     return userGuesses
+
 
 
 def getUserInputLetter():
@@ -86,20 +90,22 @@ def getUserInputLetter():
         if userInput.isalpha():
             if len(userInput) == 1:
                 return userInput
-        print("Please enter only ONE letter from a - z")
-        print("______________")
+        print("Please enter only ONE letter from a - z" + LineSeperate)
 
 
 def alreadyGuessed(hiddenWord, lettersGuessed):
-    return "\033[93mYou already guessed that letter: \033[0m" + getGuessedWord(hiddenWord, lettersGuessed)
+    return "\033[93mYou already guessed that letter: \033[0m" + \
+            getGuessedWord(hiddenWord, lettersGuessed)
 
 
 def notGuessed(hiddenWord, lettersGuessed):
-    return "\033[91mThat letter is NOT in my word: \033[0m" + getGuessedWord(hiddenWord, lettersGuessed)
+    return "\033[91mThat letter is NOT in my word: \033[0m" + \
+            getGuessedWord(hiddenWord, lettersGuessed)
 
 
 def goodGuessed(hiddenWord, lettersGuessed):
-    return "\033[92mGood: \033[0m" + getGuessedWord(hiddenWord, lettersGuessed)
+    return "\033[92mGood: \033[0m" + \
+            getGuessedWord(hiddenWord, lettersGuessed)
 
 
 def hangman(hiddenWord):
@@ -114,11 +120,9 @@ def hangman(hiddenWord):
 
     if numofGussesLeft < 3:  # For brave people only
         print("You are a brave one. Are you feeling confident?")
-    print("______________")
-    print("I am thinking of a word that is", len(hiddenWord), "letters long.")
+    print(LineSeperate[1:] + "\nI am thinking of a word that is",\
+                              len(hiddenWord), "letters long." + LineSeperate)
     while True:
-        print("______________")
-
         if numofGussesLeft == 0:
             print("You Lost!")
             print("The word was", hiddenWord)
