@@ -42,10 +42,10 @@ def getGuessedWord(hiddenWord, lettersGuessed):
     '''
     Returns the guessed words so far. Adds a underscore for unguessed letters.
     '''
-    guesedCorrect = ' '
+    guesedCorrect = ''
     for letter in hiddenWord:
         if letter in lettersGuessed:
-            guesedCorrect += letter
+            guesedCorrect += ' ' + letter + ' '
         else:
             guesedCorrect += ' _ '
     return guesedCorrect + LineSeperate
@@ -80,7 +80,6 @@ def getUserInputGuess():
     return userGuesses
 
 
-
 def getUserInputLetter():
     '''
     Makes sure the user is inputing only ONE character from the alphabet.
@@ -94,18 +93,15 @@ def getUserInputLetter():
 
 
 def alreadyGuessed(hiddenWord, lettersGuessed):
-    return "\033[93mYou already guessed that letter: \033[0m" + \
-            getGuessedWord(hiddenWord, lettersGuessed)
+    return '{}    {}'.format("\033[93mYou already guessed that letter:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
 
 
 def notGuessed(hiddenWord, lettersGuessed):
-    return "\033[91mThat letter is NOT in my word: \033[0m" + \
-            getGuessedWord(hiddenWord, lettersGuessed)
+    return '{}      {}'.format("\033[91mThat letter is NOT in my word:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
 
 
 def goodGuessed(hiddenWord, lettersGuessed):
-    return "\033[92mGood: \033[0m" + \
-            getGuessedWord(hiddenWord, lettersGuessed)
+    return '{}                               {}'.format("\033[92mGood:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
 
 
 def hangman(hiddenWord):
@@ -120,8 +116,8 @@ def hangman(hiddenWord):
 
     if numofGussesLeft < 3:  # For brave people only
         print("You are a brave one. Are you feeling confident?")
-    print(LineSeperate[1:] + "\nI am thinking of a word that is",\
-                              len(hiddenWord), "letters long." + LineSeperate)
+    print(LineSeperate[1:] + "\nI am thinking of a word that is",
+          len(hiddenWord), "letters long." + LineSeperate)
     while True:
         if numofGussesLeft == 0:
             print("You Lost!")
