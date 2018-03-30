@@ -93,11 +93,11 @@ def getUserInputLetter():
 
 
 def alreadyGuessed(hiddenWord, lettersGuessed):
-    return '{}    {}'.format("\033[93mYou already guessed that letter:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
+    return '{}                    {}'.format("\033[93mAlready Guessed:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
 
 
 def notGuessed(hiddenWord, lettersGuessed):
-    return '{}      {}'.format("\033[91mThat letter is NOT in my word:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
+    return '{}                              {}'.format("\033[91mWrong:\033[0m", getGuessedWord(hiddenWord, lettersGuessed))
 
 
 def goodGuessed(hiddenWord, lettersGuessed):
