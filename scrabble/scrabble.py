@@ -140,9 +140,12 @@ def playHand(hand, wordsLoaded, n):
             print('Invalid word, please try again.', LINE_SEPERATE)
 
         else:
+            copy = TOTAL_SCORE
             TOTAL_SCORE += getWordScore(userInput, n)
+            added = TOTAL_SCORE - copy
             print('"', userInput, '"', 'earned',
-                  getWordScore(userInput, n), 'points', 'Total:', str(TOTAL_SCORE) + '!', LINE_SEPERATE)
+                  getWordScore(userInput, n), 'points', LINE_SEPERATE)
+            print(' \033[92m+\033[0m Total Score Increased By: \033[92m{}\033[0m'.format(added))
             hand = updateHand(hand, userInput)
 
     if userInput == '.':
@@ -213,7 +216,7 @@ def whoisPlaying():
 
 def changeHandSize():
     global HAND_SIZE
-    print(LINE_SEPERATE, 'Change Hand Size', '\nCurrent:', HAND_SIZE)
+    print(LINE_SEPERATE, '\nChange Hand Size', '\nCurrent:', HAND_SIZE)
     while True:
         handsize = input('Enter a number or (Cancel [c] )')
 
@@ -237,6 +240,18 @@ def endGame(hands, replayed, user):
         print('Total Score:', TOTAL_SCORE)
     print('Total Hands Played:', hands)
     print('Total Replayed Hands:', replayed)
+
+
+def confirmReplay():
+    print('\nReplaying your last hand will reduce you points by 70%.')
+    while True:
+        userInput = input("Are you sure you want to continue? [y/n]")
+        if userInput.lower() == 'y':
+            return True
+        elif userInput.lower() == 'n':
+            return False
+        else:
+            continue
 
 
 def playGame(wordsLoaded, choice):
@@ -317,8 +332,16 @@ def playGame(wordsLoaded, choice):
                     print("You have not played a hand yet.")
                     continue
                 else:
-                    playHand(stored, wordsLoaded, HAND_SIZE)
-                    replayedHands += 1
+                    if confirmReplay():
+                        copy = TOTAL_SCORE
+                        TOTAL_SCORE -= int(TOTAL_SCORE * 0.7)
+                        reduction = copy - TOTAL_SCORE
+                        print(
+                            ' \033[91m-\033[0m Total Score Reduced By: \033[91m{}\033[0m'.format(reduction))
+                        playHand(stored, wordsLoaded, HAND_SIZE)
+                        replayedHands += 1
+                    else:
+                        continue
 
             elif userInput.lower() == 'h':
                 changeHandSize()
