@@ -32,14 +32,32 @@ SCRABBLE_LETTER_VALUES = {
 
 def loadWords():
     '''
-    Loads the words from the file into (wordsLoaded)
+    Loads the words from the file into 'wordsLoaded'
+    A Dictionary seperating each letter of the english alphabet
     '''
+    allWords = {'a': [], 'b': [], 'c': [], 'd': [], 'e': [],
+                'f': [], 'g': [], 'h': [], 'i': [], 'j': [],
+                'k': [], 'l': [], 'm': [], 'n': [], 'o': [],
+                'p': [], 'q': [], 'r': [], 's': [], 't': [],
+                'u': [], 'v': [], 'w': [], 'x': [], 'y': [],
+                'z': []}
+
     inFile = open(WORD_FILE, 'r')
-    wordsLoaded = []
-    for line in inFile:
-        wordsLoaded.append(line.strip().lower())
-    print(len(wordsLoaded), "words loaded.")
-    return wordsLoaded
+    wordList = []
+    for e in inFile:
+        wordList.append(e.strip().lower())
+    inFile.close()
+
+    counter = 0
+    for letter in allWords:
+        for line in wordList[(counter):]:
+            counter += 1
+            if line[0] == letter:
+                allWords[letter].append(line.strip().lower())
+                print(allWords)
+            else:
+                counter -= 1
+                continue
 
 
 def getWordScore(word, n):
@@ -104,8 +122,9 @@ def isValidWord(word, hand, wordsLoaded):
     '''
 
     tempHand = hand.copy()
-    if word not in wordsLoaded:
-        return False
+    for f in wordsLoaded.values():
+        if word in f:
+            break
 
     for e in word:
         if e not in hand:
@@ -194,23 +213,45 @@ def compChooseWord(hand, wordsLoaded, n, dif):
 
     bestScore = 0
     bestWord = None
-    for word in wordsLoaded:
-        if isValidWord(word, hand, wordsLoaded):
-            score = getWordScore(word, n)
-            if (score > bestScore):
-                bestScore = score
-                bestWord = word
-                if calculateHandlen(hand) == 1:
-                    return bestWord
-                elif dif == 'e':
-                    if 3 <= len(bestWord) <= 4:
+    for letter in wordsLoaded:
+        for element in wordsLoaded[letter]:
+            if isValidWord(element, hand, wordsLoaded):
+                score = getWordScore(element, n)
+                if (score > bestScore):
+                    bestScore = score
+                    bestWord = element
+                    if calculateHandlen(hand) == 1:
                         return bestWord
-                elif dif == 'm':
-                    if 3 <= len(bestWord) <= 5:
-                        return bestWord
-                elif dif == 'h':
-                    if 3 <= len(bestWord) <= HAND_SIZE:
-                        return bestWord
+                    elif dif == 'e':
+                        if 3 <= len(bestWord) <= 4:
+                            return bestWord
+                    elif dif == 'm':
+                        if 3 <= len(bestWord) <= 5:
+                            return bestWord
+                    elif dif == 'h':
+                        if 3 <= len(bestWord) <= HAND_SIZE:
+                            return bestWord
+            else:
+                continue
+        continue
+
+    # for word in wordsLoaded:
+    #     if isValidWord(word, hand, wordsLoaded):
+    #         score = getWordScore(word, n)
+    #         if (score > bestScore):
+    #             bestScore = score
+    #             bestWord = word
+    #             if calculateHandlen(hand) == 1:
+    #                 return bestWord
+    #             elif dif == 'e':
+    #                 if 3 <= len(bestWord) <= 4:
+    #                     return bestWord
+    #             elif dif == 'm':
+    #                 if 3 <= len(bestWord) <= 5:
+    #                     return bestWord
+    #             elif dif == 'h':
+    #                 if 3 <= len(bestWord) <= HAND_SIZE:
+    #                     return bestWord
 
 
 def compPlayHand(hand, wordsLoaded, n, dif):
@@ -317,7 +358,7 @@ def endGame(hands, choice):
     print('Thanks for playing!')
     print('Difficulty:', choices.get(choice))
     print('Total Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m!')
-    print('Total Rounds Played:', ROUND)
+    print('Total Rounds Played:', TOTAL_ROUNDS)
 
 
 def playGame(wordsLoaded, choice):
