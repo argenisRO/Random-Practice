@@ -1,3 +1,2 @@
 # mini_games
-Small Command Line Games Writen In Python
-for fun
+Small Command Line Games Written In Python for fun

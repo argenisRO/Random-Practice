@@ -5,15 +5,21 @@
 
 import random
 import string
+import sys
+import threading
+import itertools
+import time
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
-HAND_SIZE = random.randrange(5, 16)
-TOTAL_SCORE = 0
-ROBOT_SCORE = 0
+HAND_SIZE = 7
+TOTAL_SCORE, TOTAL_ROUNDS, ROBOT_SCORE, ROUND = 0, 0, 0, 0
+NUM_OF_ROUND = 2
 WORD_FILE = "words.txt"
 LINE_SEPERATE = "\n__________________________________"
 OPTION_LIST = ['u', 'c', 'only Me', 'me', 'computer ai', 'computer']
+doneLoading = False
+
 
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4,
@@ -129,21 +135,32 @@ def playHand(hand, wordsLoaded, n):
     Interactive User Player Base
     '''
     global TOTAL_SCORE
+    global ROUND
+    invalid = 1
     while calculateHandlen(hand) > 0:
+        print('Round', str(ROUND)+'!')
         print("\nCurrent Hand: ", end=' ')
         displayHand(hand)
+        if invalid == 4:
+            print('Moving on with the game.')
+            userInput == '.'
+            break
+
         userInput = input('Enter a word ([.] to finish): ')
 
         if userInput == '.':
             break
+
         elif not isValidWord(userInput, hand, wordsLoaded):
             print('Invalid word, please try again.', LINE_SEPERATE)
+            invalid += 1
 
         else:
+            invalid = 0
             copy = TOTAL_SCORE
             TOTAL_SCORE += getWordScore(userInput, n)
             added = TOTAL_SCORE - copy
-            print('"', userInput, '"', 'earned',
+            print('\r"', userInput, '"', 'earned',
                   getWordScore(userInput, n), 'points', LINE_SEPERATE)
             print(' \033[92m+\033[0m Total Score Increased By: \033[92m{}\033[0m'.format(added))
             hand = updateHand(hand, userInput)
@@ -154,11 +171,27 @@ def playHand(hand, wordsLoaded, n):
         print('You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
 
 
-def compChooseWord(hand, wordsLoaded, n):
+def letMeThink():
+    '''
+    Tiny animation while the bot searches for words
+    '''
+    print('\n')
+    counter = 0
+
+    for e in itertools.cycle(['.', '..', '...', '\x1b[2K']):
+        if doneLoading:
+            break
+        sys.stdout.write('\r' + e)
+        sys.stdout.flush()
+        time.sleep(0.7)
+
+
+def compChooseWord(hand, wordsLoaded, n, dif):
     '''
     Returns the best chosen word from 'wordsLoaded'
     for the computer player
     '''
+
     bestScore = 0
     bestWord = None
     for word in wordsLoaded:
@@ -167,54 +200,76 @@ def compChooseWord(hand, wordsLoaded, n):
             if (score > bestScore):
                 bestScore = score
                 bestWord = word
-    return bestWord
+                if calculateHandlen(hand) == 1:
+                    return bestWord
+                elif dif == 'e':
+                    if 3 <= len(bestWord) <= 4:
+                        return bestWord
+                elif dif == 'm':
+                    if 3 <= len(bestWord) <= 5:
+                        return bestWord
+                elif dif == 'h':
+                    if 3 <= len(bestWord) <= HAND_SIZE:
+                        return bestWord
 
 
-def compPlayHand(hand, wordsLoaded, n):
+def compPlayHand(hand, wordsLoaded, n, dif):
     '''
     Computer plays Scrabble against alone.
     '''
-    # TODO: Optimize Speed On Word Search
     global ROBOT_SCORE
     totalScore = 0
+    global doneLoading
     while (calculateHandlen(hand) > 0):
+        doneLoading = False
 
         print("\nCurrent Hand: ", end=' ')
         displayHand(hand)
 
-        word = compChooseWord(hand, wordsLoaded, n)
+        load = threading.Thread(target=letMeThink)
+        load.start()
+        word = compChooseWord(hand, wordsLoaded, n, dif)
+        doneLoading = True
+
         if word == None:
             break
 
         else:
-            if (not isValidWord(word, hand, wordsLoaded)):
-                print("This... shouldn't be happening.")
+            if not isValidWord(word, hand, wordsLoaded):
+                print("This... can't be happening!")
                 break
             else:
                 score = getWordScore(word, n)
                 ROBOT_SCORE += score
-                print('"' + word + '" earned ' + str(score) +
+                print('\r"' + word + '" earned ' + str(score) +
                       ' points. Total: ' + str(ROBOT_SCORE) + ' points', LINE_SEPERATE)
                 hand = updateHand(hand, word)
                 print()
-    print('Total score: ' + str(ROBOT_SCORE) + ' points.\n')
+    print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
 
 
-def whoisPlaying():
-    print('\tScrabble', LINE_SEPERATE, '\nWho will be playing?',
-          '\n• Only Me     [u]',
-          '\n• Computer AI [c]')
+def choseDifficulty():
+    '''
+    Greeting message for user asking for 'difficulty' level
+    '''
+    print('\tScrabble', LINE_SEPERATE, '\nChoose A Difficulty',
+          '\n• Easy     [e]',
+          '\n• Medium   [m]',
+          '\n• Hard     [h]')
 
     while True:
-        player = input()
-        if player.lower() not in ['u', 'c']:
-            print("Invalid Input. Please choose between (u) or (c)", end='\n')
+        difficulty = input()
+        if difficulty.lower() not in ['e', 'm', 'h']:
+            print("Invalid Input. Please choose between (e), (m), and (h)")
         else:
             print(LINE_SEPERATE)
-            return player
+            return difficulty
 
 
 def changeHandSize():
+    '''
+    Allows the user to change the global HAND_SIZE variable
+    '''
     global HAND_SIZE
     print(LINE_SEPERATE, '\nChange Hand Size', '\nCurrent:', HAND_SIZE)
     while True:
@@ -231,138 +286,107 @@ def changeHandSize():
             print('Only numbers allowed.')
 
 
-def endGame(hands, replayed, user):
-    if user == 'computer':
-        print('Thanks for... beep playing!')
-        print('Total Score:', ROBOT_SCORE)
-    elif user == 'user':
-        print('Thanks for playing!')
-        print('Total Score:', TOTAL_SCORE)
-    print('Total Hands Played:', hands)
-    print('Total Replayed Hands:', replayed)
-
-
-def confirmReplay():
-    print('\nReplaying your last hand will reduce you points by 70%.')
+def changeRounds():
+    '''
+    Allows the user to change the global NUM_OF_ROUND variable
+    '''
+    global NUM_OF_ROUND
+    print(LINE_SEPERATE, '\nChange Rounds', '\nCurrent:', NUM_OF_ROUND)
     while True:
-        userInput = input("Are you sure you want to continue? [y/n]")
-        if userInput.lower() == 'y':
-            return True
-        elif userInput.lower() == 'n':
-            return False
+        round = input('Enter a number or (Cancel [c] )')
+
+        if round.lower() in ['cancel', 'c']:
+            break
+
+        elif round.isdigit():
+            if int(round) >= 1:
+                NUM_OF_ROUND = int(round)
+                print('Successfully Changed Game Rounds', LINE_SEPERATE)
+                break
+            else:
+                print('Number must be greater than 0.')
         else:
-            continue
+            print('Only numbers allowed.')
+
+
+def endGame(hands, choice):
+    '''
+    Dismisses the player provinding recorded stats.
+    '''
+    choices = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
+    print('Thanks for playing!')
+    print('Difficulty:', choices.get(choice))
+    print('Total Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m!')
+    print('Total Rounds Played:', ROUND)
 
 
 def playGame(wordsLoaded, choice):
     '''
     Scrabble Game
     '''
-    # __Variables__
     global TOTAL_SCORE
+    global TOTAL_ROUNDS
     global ROBOT_SCORE
     global HAND_SIZE
-    stored = {}
-    robotStored = {}
-    hands, replayedHands = 0, 0
-    robotHands, replayedRobotHands = 0, 0
-
-    # _____________
+    global ROUND
+    global NUM_OF_ROUND
+    hands, robotHands = 0, 0
 
     print('\nWelcome to the Scrabble Game!', '\nHand Size:',
-          HAND_SIZE, LINE_SEPERATE, '\nChoose your move\n')
+          HAND_SIZE)
     while True:
-
-        # Robot Code
-        if choice == 'c':
-            print(LINE_SEPERATE, '\n\t_Computer Player_')
-            print('Current Score = TOTAL_SCORE ... woops, this should not be here.', ROBOT_SCORE)
-            print('\n• Deal A New Hand     [n]',
-                  '\n• Replay Last Hand    [r]',
-                  '\n• Change Hand Size    [h]',
-                  '\n• Swap To Player Mode [s]',
-                  '\n• End Game            [e]')
-            userInput = input()
-            if userInput.lower() == 'n':
-                dealtH = dealHand(HAND_SIZE)
-                compPlayHand(dealtH, wordsLoaded, HAND_SIZE)
-                robotStored = dealtH
-                robotHands += 1
-
-            elif userInput.lower() == 'r':
-                if bool(robotStored) == False:
-                    print("\nYou have no-- I mean I have not played a hand yet.... boop beep ")
-                    continue
-                else:
-                    compPlayHand(robotStored, wordsLoaded, HAND_SIZE)
-                    replayedRobotHands += 1
-
-            elif userInput.lower() == 'h':
-                changeHandSize()
-
-            elif userInput.lower() == 's':
-                print('\nNow in Human Mode')
-                choice = 'u'
-                continue
-
-            elif userInput.lower() == 'e':
-                endGame(robotHands, replayedRobotHands, 'computer')
-                break
-            else:
-                print('Invalid command... Beep..Boop')
-
-        # Human Code
-        elif choice == 'u':
-            print(LINE_SEPERATE, '\n\t  _Human Player_')
-            print('Current Score:', TOTAL_SCORE)
-            print('\n• Deal A New Hand     [n]',
-                  '\n• Replay Last Hand    [r]',
-                  '\n• Change Hand Size    [h]',
-                  '\n• Swap To Computer AI [s]',
-                  '\n• End Game            [e]')
-            userInput = input()
-            if userInput.lower() == 'n':
+        print(LINE_SEPERATE)
+        print('Current Score:', TOTAL_SCORE)
+        print('\n• Start Game      [s]',
+              '\n• Options         [o]',
+              '\n• End Game        [e]')
+        userInput = input()
+        if userInput.lower() == 's':
+            ROUND = 0
+            while ROUND < NUM_OF_ROUND:
+                # Player Turn
+                ROUND += 1
+                TOTAL_ROUNDS += 1
                 dealtH = dealHand(HAND_SIZE)
                 playHand(dealtH, wordsLoaded, HAND_SIZE)
-                stored = dealtH
                 hands += 1
-
-            elif userInput.lower() == 'r':
-                if bool(stored) == False:
-                    print("You have not played a hand yet.")
-                    continue
-                else:
-                    if confirmReplay():
-                        copy = TOTAL_SCORE
-                        TOTAL_SCORE -= int(TOTAL_SCORE * 0.7)
-                        reduction = copy - TOTAL_SCORE
-                        print(
-                            ' \033[91m-\033[0m Total Score Reduced By: \033[91m{}\033[0m'.format(reduction))
-                        playHand(stored, wordsLoaded, HAND_SIZE)
-                        replayedHands += 1
-                    else:
-                        continue
-
-            elif userInput.lower() == 'h':
-                changeHandSize()
-
-            elif userInput.lower() == 's':
-                print('\nNow in Computer AI mode')
-                choice = 'c'
-                continue
-
-            elif userInput.lower() == 'e':
-                endGame(hands, replayedHands, 'user')
-                break
-
+                # Robot Turn
+                dealtI = dealHand(HAND_SIZE)
+                compPlayHand(dealtI, wordsLoaded, HAND_SIZE, choice)
+                robotHands += 1
+            if TOTAL_SCORE > ROBOT_SCORE:
+                print("\033[92mYOU WIN!\033[0m")
+                print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
             else:
-                print('Invalid command.')
-        else:  # Safe Check
-            print("Something Went Wrong.", "'current' option is set to", choice)
+                print("\033[91mYOU LOSE!\033[0m")
+                print('\033[91m', ROBOT_SCORE, '\033[0m'+'vs'+'\033[92m', TOTAL_SCORE, '\033[0m')
+
+        elif userInput.lower() == 'o':
+            while True:
+                print('\n• Change Hand Size  [h]',
+                      '\n• Change Rounds     [r]',
+                      '\n• Go Back           [e]')
+                optionsInput = input()
+                if optionsInput == 'h':
+                    changeHandSize()
+                elif optionsInput == 'r':
+                    changeRounds()
+
+                elif optionsInput == 'e':
+                    break
+
+        elif userInput.lower() == 'e':
+            endGame(hands, choice)
+            break
+
+        else:
+            print('Invalid command.')
+    else:  # Safe Check
+        print("Something Went Wrong.", "'current' option is set to", choice)
 
 
 # Start Game
 if __name__ == '__main__':
     wordsLoaded = loadWords()
-    player = whoisPlaying()
-    playGame(wordsLoaded, player)
+    difficulty = choseDifficulty()
+    playGame(wordsLoaded, difficulty)
