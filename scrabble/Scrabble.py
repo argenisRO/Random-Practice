@@ -12,14 +12,14 @@ import time
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
-HAND_SIZE = 7
+HAND_SIZE = 8
 TOTAL_SCORE, TOTAL_ROUNDS, ROBOT_SCORE, ROUND = 0, 0, 0, 0
 NUM_OF_ROUND = 2
 WORD_FILE = "words.txt"
 LINE_SEPERATE = "\n__________________________________"
-OPTION_LIST = ['u', 'c', 'only Me', 'me', 'computer ai', 'computer']
 doneLoading = False
 DIFFICULTY = 'e'
+choices = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
 
 
 SCRABBLE_LETTER_VALUES = {
@@ -203,7 +203,7 @@ def playHand(hand, wordsLoaded, n):
         print('You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
 
 
-def letMeThink():
+def loading():
     '''
     Tiny animation while the bot searches for words
     '''
@@ -218,7 +218,7 @@ def letMeThink():
         time.sleep(0.7)
 
 
-def compChooseWord(hand, wordsLoaded, n, dif):
+def compChooseWord(hand, wordsLoaded, n):
     '''
     Returns the best chosen word from 'wordsLoaded'
     for the computer player
@@ -230,7 +230,9 @@ def compChooseWord(hand, wordsLoaded, n, dif):
     for handLetter in returnHand(hand):
         stored = wordsLoaded.get(handLetter)
         for word in stored:
-            if isValidWord(word, hand, wordsLoaded):
+            if (choices[DIFFICULTY] == 'Easy') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 2) or \
+               (choices[DIFFICULTY] == 'Medium') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 4) or \
+               (choices[DIFFICULTY] == 'Hard') and (isValidWord(word, hand, wordsLoaded)):
                 score = getWordScore(word, n)
                 if (score > bestScore):
                     bestScore = score
@@ -252,9 +254,9 @@ def compPlayHand(hand, wordsLoaded, n, dif):
         print("\nCurrent Hand: ", end=' ')
         displayHand(hand)
 
-        load = threading.Thread(target=letMeThink)
+        load = threading.Thread(target=loading)
         load.start()
-        word = compChooseWord(hand, wordsLoaded, n, dif)
+        word = compChooseWord(hand, wordsLoaded, n)
         doneLoading = True
 
         if word == None:
@@ -278,19 +280,20 @@ def choseDifficulty():
     '''
     Greeting message for user asking for 'difficulty' level
     '''
+    global DIFFICULTY
     print('\tScrabble', LINE_SEPERATE, '\nChoose A Difficulty',
           '\n• Easy     [e]',
           '\n• Medium   [m]',
           '\n• Hard     [h]')
 
     while True:
-        difficulty = input()
-        if difficulty.lower() not in ['e', 'm', 'h']:
+        diffi = input()
+        if diffi.lower() not in ['e', 'm', 'h']:
             print("Invalid Input. Please choose between (e), (m), and (h)")
         else:
-            DIFFICULTY = difficulty
             print(LINE_SEPERATE)
-            return difficulty
+            DIFFICULTY = diffi
+            break
 
 
 def changeHandSize():
@@ -344,14 +347,14 @@ def changeDifficulty():
 
     print(LINE_SEPERATE, '\nChange Difficulty')
     while True:
-        round = input('Enter a number or (Cancel [c] )')
+        diff = input('Enter a number or (Cancel [c] )')
 
-        if difficulty.lower() not in ['e', 'm', 'h']:
+        if diff.lower() not in choices:
             print("Invalid Input. Please choose between (e), (m), and (h)")
 
         else:
-            DIFFICULTY = difficulty
-            print('Successfully Changed Game Difficulty to',)
+            DIFFICULTY = diff
+            print('\nSuccessfully Changed Game Difficulty to', choices[diff])
             break
 
 
@@ -359,12 +362,11 @@ def endGame(hands, choice):
     '''
     Dismisses the player provinding recorded stats.
     '''
-    choices = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
-    print(LINE_SEPERATE)
-    print('Thanks for playing!')
-    print('Difficulty:', choices.get(choice))
-    print('Total Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m!')
-    print('Total Rounds Played:', TOTAL_ROUNDS)
+    print(LINE_SEPERATE,
+          '\nThanks for playing!',
+          '\nDifficulty:', choices.get(choice),
+          '\nTotal Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m',
+          '\nTotal Rounds Played:', TOTAL_ROUNDS)
 
 
 def playGame(wordsLoaded, choice):
@@ -391,9 +393,10 @@ def playGame(wordsLoaded, choice):
         if userInput.lower() == 's':
             ROUND = 0
             while ROUND < NUM_OF_ROUND:
-                # Player Turn
                 ROUND += 1
                 TOTAL_ROUNDS += 1
+
+                # Player Turn
                 dealtH = dealHand(HAND_SIZE)
                 playHand(dealtH, wordsLoaded, HAND_SIZE)
                 hands += 1
@@ -401,6 +404,8 @@ def playGame(wordsLoaded, choice):
                 dealtI = dealHand(HAND_SIZE)
                 compPlayHand(dealtI, wordsLoaded, HAND_SIZE, choice)
                 robotHands += 1
+
+            # End of Game
             if TOTAL_SCORE > ROBOT_SCORE:
                 print("\033[92mYOU WIN!\033[0m")
                 print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
@@ -438,6 +443,6 @@ def playGame(wordsLoaded, choice):
 # Start Game
 if __name__ == '__main__':
     wordsLoaded = loadWords()
+    choseDifficulty()
     listWords = listWord(wordsLoaded)
-    difficulty = choseDifficulty()
-    playGame(wordsLoaded, difficulty)
+    playGame(wordsLoaded, DIFFICULTY)
