@@ -19,6 +19,7 @@ WORD_FILE = "words.txt"
 LINE_SEPERATE = "\n__________________________________"
 OPTION_LIST = ['u', 'c', 'only Me', 'me', 'computer ai', 'computer']
 doneLoading = False
+DIFFICULTY = 'e'
 
 
 SCRABBLE_LETTER_VALUES = {
@@ -35,29 +36,30 @@ def loadWords():
     Loads the words from the file into 'wordsLoaded'
     A Dictionary seperating each letter of the english alphabet
     '''
-    allWords = {'a': [], 'b': [], 'c': [], 'd': [], 'e': [],
-                'f': [], 'g': [], 'h': [], 'i': [], 'j': [],
-                'k': [], 'l': [], 'm': [], 'n': [], 'o': [],
-                'p': [], 'q': [], 'r': [], 's': [], 't': [],
-                'u': [], 'v': [], 'w': [], 'x': [], 'y': [],
-                'z': []}
+    allWords = {}
 
     inFile = open(WORD_FILE, 'r')
     wordList = []
     for e in inFile:
         wordList.append(e.strip().lower())
     inFile.close()
+    for word in wordList:
+        if word[0] not in allWords:
+            allWords[word[0]] = []
+        else:
+            allWords[word[0]].append(word)
+    return allWords
 
-    counter = 0
-    for letter in allWords:
-        for line in wordList[(counter):]:
-            counter += 1
-            if line[0] == letter:
-                allWords[letter].append(line.strip().lower())
-                print(allWords)
-            else:
-                counter -= 1
-                continue
+
+def listWord(wordsLoaded):
+    '''
+    Loads the words from 'wordsLoaded'
+    into a list.
+    '''
+    tempList = []
+    for i in wordsLoaded.values():
+        tempList += i
+    return tempList
 
 
 def getWordScore(word, n):
@@ -82,6 +84,17 @@ def displayHand(hand):
         for j in range(hand[letter]):
             print(letter, end=" ")
     print()
+
+
+def returnHand(hand):
+    '''
+    Returns the current hand to in a list
+    '''
+    handList = []
+    for letter in hand.keys():
+        for j in range(hand[letter]):
+            handList.append(letter)
+    return handList
 
 
 def dealHand(n):
@@ -122,9 +135,9 @@ def isValidWord(word, hand, wordsLoaded):
     '''
 
     tempHand = hand.copy()
-    for f in wordsLoaded.values():
-        if word in f:
-            break
+
+    if word not in listWords:
+        return False
 
     for e in word:
         if e not in hand:
@@ -213,45 +226,16 @@ def compChooseWord(hand, wordsLoaded, n, dif):
 
     bestScore = 0
     bestWord = None
-    for letter in wordsLoaded:
-        for element in wordsLoaded[letter]:
-            if isValidWord(element, hand, wordsLoaded):
-                score = getWordScore(element, n)
+
+    for handLetter in returnHand(hand):
+        stored = wordsLoaded.get(handLetter)
+        for word in stored:
+            if isValidWord(word, hand, wordsLoaded):
+                score = getWordScore(word, n)
                 if (score > bestScore):
                     bestScore = score
-                    bestWord = element
-                    if calculateHandlen(hand) == 1:
-                        return bestWord
-                    elif dif == 'e':
-                        if 3 <= len(bestWord) <= 4:
-                            return bestWord
-                    elif dif == 'm':
-                        if 3 <= len(bestWord) <= 5:
-                            return bestWord
-                    elif dif == 'h':
-                        if 3 <= len(bestWord) <= HAND_SIZE:
-                            return bestWord
-            else:
-                continue
-        continue
-
-    # for word in wordsLoaded:
-    #     if isValidWord(word, hand, wordsLoaded):
-    #         score = getWordScore(word, n)
-    #         if (score > bestScore):
-    #             bestScore = score
-    #             bestWord = word
-    #             if calculateHandlen(hand) == 1:
-    #                 return bestWord
-    #             elif dif == 'e':
-    #                 if 3 <= len(bestWord) <= 4:
-    #                     return bestWord
-    #             elif dif == 'm':
-    #                 if 3 <= len(bestWord) <= 5:
-    #                     return bestWord
-    #             elif dif == 'h':
-    #                 if 3 <= len(bestWord) <= HAND_SIZE:
-    #                     return bestWord
+                    bestWord = word
+    return bestWord
 
 
 def compPlayHand(hand, wordsLoaded, n, dif):
@@ -259,8 +243,9 @@ def compPlayHand(hand, wordsLoaded, n, dif):
     Computer plays Scrabble against alone.
     '''
     global ROBOT_SCORE
-    totalScore = 0
     global doneLoading
+
+    totalScore = 0
     while (calculateHandlen(hand) > 0):
         doneLoading = False
 
@@ -303,6 +288,7 @@ def choseDifficulty():
         if difficulty.lower() not in ['e', 'm', 'h']:
             print("Invalid Input. Please choose between (e), (m), and (h)")
         else:
+            DIFFICULTY = difficulty
             print(LINE_SEPERATE)
             return difficulty
 
@@ -350,11 +336,31 @@ def changeRounds():
             print('Only numbers allowed.')
 
 
+def changeDifficulty():
+    '''
+    Allows the user to change the global DIFFICULTY variable
+    '''
+    global DIFFICULTY
+
+    print(LINE_SEPERATE, '\nChange Difficulty')
+    while True:
+        round = input('Enter a number or (Cancel [c] )')
+
+        if difficulty.lower() not in ['e', 'm', 'h']:
+            print("Invalid Input. Please choose between (e), (m), and (h)")
+
+        else:
+            DIFFICULTY = difficulty
+            print('Successfully Changed Game Difficulty to',)
+            break
+
+
 def endGame(hands, choice):
     '''
     Dismisses the player provinding recorded stats.
     '''
     choices = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
+    print(LINE_SEPERATE)
     print('Thanks for playing!')
     print('Difficulty:', choices.get(choice))
     print('Total Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m!')
@@ -406,12 +412,15 @@ def playGame(wordsLoaded, choice):
             while True:
                 print('\n• Change Hand Size  [h]',
                       '\n• Change Rounds     [r]',
+                      '\n• Change Difficulty [d]',
                       '\n• Go Back           [e]')
                 optionsInput = input()
                 if optionsInput == 'h':
                     changeHandSize()
                 elif optionsInput == 'r':
                     changeRounds()
+                elif optionsInput == 'd':
+                    changeDifficulty()
 
                 elif optionsInput == 'e':
                     break
@@ -429,5 +438,6 @@ def playGame(wordsLoaded, choice):
 # Start Game
 if __name__ == '__main__':
     wordsLoaded = loadWords()
+    listWords = listWord(wordsLoaded)
     difficulty = choseDifficulty()
     playGame(wordsLoaded, difficulty)
