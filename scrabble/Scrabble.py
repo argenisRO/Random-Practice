@@ -16,11 +16,12 @@ HAND_SIZE = 8
 TOTAL_SCORE, TOTAL_ROUNDS, ROBOT_SCORE, ROUND = 0, 0, 0, 0
 NUM_OF_ROUND = 2
 WORD_FILE = "words.txt"
-LINE_SEPERATE = "\n__________________________________"
-doneLoading = False
+LINE_SEPERATE = "\n_____________________________________________________"
+LOADED = False
 DIFFICULTY = 'e'
-choices = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
+DIF_CHOICE = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
 
+# TODO:Add score to each round of the game
 
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4,
@@ -43,6 +44,7 @@ def loadWords():
     for e in inFile:
         wordList.append(e.strip().lower())
     inFile.close()
+
     for word in wordList:
         if word[0] not in allWords:
             allWords[word[0]] = []
@@ -139,13 +141,13 @@ def isValidWord(word, hand, wordsLoaded):
     if word not in listWords:
         return False
 
-    for e in word:
-        if e not in hand:
+    for letter in word:
+        if letter not in hand:
             return False
         else:
-            stored = tempHand.get(e)
-            tempHand[e] = stored - 1
-            if tempHand[e] < 0:
+            stored = tempHand.get(letter)
+            tempHand[letter] = stored - 1
+            if tempHand[letter] < 0:
                 return False
     return True
 
@@ -195,6 +197,7 @@ def playHand(hand, wordsLoaded, n):
             print('\r"', userInput, '"', 'earned',
                   getWordScore(userInput, n), 'points', LINE_SEPERATE)
             print(' \033[92m+\033[0m Total Score Increased By: \033[92m{}\033[0m'.format(added))
+            print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
             hand = updateHand(hand, userInput)
 
     if userInput == '.':
@@ -210,10 +213,10 @@ def loading():
     print('\n')
     counter = 0
 
-    for e in itertools.cycle(['.', '..', '...', '\x1b[2K']):
-        if doneLoading:
+    for dot in itertools.cycle(['.', '..', '...', '\x1b[2K']):
+        if LOADED:
             break
-        sys.stdout.write('\r' + e)
+        sys.stdout.write('\r' + dot)
         sys.stdout.flush()
         time.sleep(0.7)
 
@@ -230,9 +233,9 @@ def compChooseWord(hand, wordsLoaded, n):
     for handLetter in returnHand(hand):
         stored = wordsLoaded.get(handLetter)
         for word in stored:
-            if (choices[DIFFICULTY] == 'Easy') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 2) or \
-               (choices[DIFFICULTY] == 'Medium') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 4) or \
-               (choices[DIFFICULTY] == 'Hard') and (isValidWord(word, hand, wordsLoaded)):
+            if (DIF_CHOICE[DIFFICULTY] == 'Easy') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 2) or \
+               (DIF_CHOICE[DIFFICULTY] == 'Medium') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 4) or \
+               (DIF_CHOICE[DIFFICULTY] == 'Hard') and (isValidWord(word, hand, wordsLoaded)):
                 score = getWordScore(word, n)
                 if (score > bestScore):
                     bestScore = score
@@ -245,11 +248,11 @@ def compPlayHand(hand, wordsLoaded, n, dif):
     Computer plays Scrabble against alone.
     '''
     global ROBOT_SCORE
-    global doneLoading
+    global LOADED
 
     totalScore = 0
     while (calculateHandlen(hand) > 0):
-        doneLoading = False
+        LOADED = False
 
         print("\nCurrent Hand: ", end=' ')
         displayHand(hand)
@@ -257,7 +260,7 @@ def compPlayHand(hand, wordsLoaded, n, dif):
         load = threading.Thread(target=loading)
         load.start()
         word = compChooseWord(hand, wordsLoaded, n)
-        doneLoading = True
+        LOADED = True
 
         if word == None:
             break
@@ -272,6 +275,7 @@ def compPlayHand(hand, wordsLoaded, n, dif):
                 print('\r"' + word + '" earned ' + str(score) +
                       ' points. Total: ' + str(ROBOT_SCORE) + ' points', LINE_SEPERATE)
                 hand = updateHand(hand, word)
+                print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
                 print()
     print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
 
@@ -349,22 +353,22 @@ def changeDifficulty():
     while True:
         diff = input('Enter a number or (Cancel [c] )')
 
-        if diff.lower() not in choices:
+        if diff.lower() not in DIF_CHOICE:
             print("Invalid Input. Please choose between (e), (m), and (h)")
 
         else:
             DIFFICULTY = diff
-            print('\nSuccessfully Changed Game Difficulty to', choices[diff])
+            print('\nSuccessfully Changed Game Difficulty to', DIF_CHOICE[diff])
             break
 
 
-def endGame(hands, choice):
+def endGame(hands):
     '''
     Dismisses the player provinding recorded stats.
     '''
     print(LINE_SEPERATE,
           '\nThanks for playing!',
-          '\nDifficulty:', choices.get(choice),
+          '\nDifficulty:', DIF_CHOICE.get(DIFFICULTY),
           '\nTotal Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m',
           '\nTotal Rounds Played:', TOTAL_ROUNDS)
 
@@ -411,7 +415,8 @@ def playGame(wordsLoaded, choice):
                 print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
             else:
                 print("\033[91mYOU LOSE!\033[0m")
-                print('\033[91m', ROBOT_SCORE, '\033[0m'+'vs'+'\033[92m', TOTAL_SCORE, '\033[0m')
+                print('\033[91m' + str(ROBOT_SCORE), '\033[0m' +
+                      'vs'+'\033[92m', str(TOTAL_SCORE), '\033[0m')
 
         elif userInput.lower() == 'o':
             while True:
@@ -431,7 +436,7 @@ def playGame(wordsLoaded, choice):
                     break
 
         elif userInput.lower() == 'e':
-            endGame(hands, choice)
+            endGame(hands)
             break
 
         else:
