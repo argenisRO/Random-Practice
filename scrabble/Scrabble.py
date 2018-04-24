@@ -21,7 +21,6 @@ LOADED = False
 DIFFICULTY = 'e'
 DIF_CHOICE = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
 
-# TODO:Add score to each round of the game
 
 SCRABBLE_LETTER_VALUES = {
     'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4,
