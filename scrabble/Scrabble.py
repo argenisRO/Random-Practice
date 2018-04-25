@@ -9,15 +9,17 @@ import sys
 import threading
 import itertools
 import time
+import load.word_load
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
 HAND_SIZE = 8
 TOTAL_SCORE, TOTAL_ROUNDS, ROBOT_SCORE, ROUND = 0, 0, 0, 0
 NUM_OF_ROUND = 2
-WORD_FILE = "words.txt"
-LINE_SEPERATE = "\n_____________________________________________________"
+LINE_SEPERATE = "\n" * 100
 LOADED = False
+wordsLoaded = load.word_load.allWords
+listWords = load.word_load.wordList
 DIFFICULTY = 'e'
 DIF_CHOICE = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
 
@@ -29,38 +31,6 @@ SCRABBLE_LETTER_VALUES = {
     's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8,
     'y': 4, 'z': 10
 }
-
-
-def loadWords():
-    '''
-    Loads the words from the file into 'wordsLoaded'
-    A Dictionary seperating each letter of the english alphabet
-    '''
-    allWords = {}
-
-    inFile = open(WORD_FILE, 'r')
-    wordList = []
-    for e in inFile:
-        wordList.append(e.strip().lower())
-    inFile.close()
-
-    for word in wordList:
-        if word[0] not in allWords:
-            allWords[word[0]] = []
-        else:
-            allWords[word[0]].append(word)
-    return allWords
-
-
-def listWord(wordsLoaded):
-    '''
-    Loads the words from 'wordsLoaded'
-    into a list.
-    '''
-    tempList = []
-    for i in wordsLoaded.values():
-        tempList += i
-    return tempList
 
 
 def getWordScore(word, n):
@@ -185,7 +155,7 @@ def playHand(hand, wordsLoaded, n):
             break
 
         elif not isValidWord(userInput, hand, wordsLoaded):
-            print('Invalid word, please try again.', LINE_SEPERATE)
+            print('Invalid word, please try again.')
             invalid += 1
 
         else:
@@ -194,7 +164,7 @@ def playHand(hand, wordsLoaded, n):
             TOTAL_SCORE += getWordScore(userInput, n)
             added = TOTAL_SCORE - copy
             print('\r"', userInput, '"', 'earned',
-                  getWordScore(userInput, n), 'points', LINE_SEPERATE)
+                  getWordScore(userInput, n), 'points')
             print(' \033[92m+\033[0m Total Score Increased By: \033[92m{}\033[0m'.format(added))
             print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
             hand = updateHand(hand, userInput)
@@ -272,7 +242,7 @@ def compPlayHand(hand, wordsLoaded, n, dif):
                 score = getWordScore(word, n)
                 ROBOT_SCORE += score
                 print('\r"' + word + '" earned ' + str(score) +
-                      ' points. Total: ' + str(ROBOT_SCORE) + ' points', LINE_SEPERATE)
+                      ' points. Total: ' + str(ROBOT_SCORE) + ' points')
                 hand = updateHand(hand, word)
                 print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
                 print()
@@ -284,7 +254,7 @@ def choseDifficulty():
     Greeting message for user asking for 'difficulty' level
     '''
     global DIFFICULTY
-    print('\tScrabble', LINE_SEPERATE, '\nChoose A Difficulty',
+    print('\tScrabble', '\nChoose A Difficulty',
           '\n• Easy     [e]',
           '\n• Medium   [m]',
           '\n• Hard     [h]')
@@ -294,7 +264,6 @@ def choseDifficulty():
         if diffi.lower() not in ['e', 'm', 'h']:
             print("Invalid Input. Please choose between (e), (m), and (h)")
         else:
-            print(LINE_SEPERATE)
             DIFFICULTY = diffi
             break
 
@@ -304,7 +273,7 @@ def changeHandSize():
     Allows the user to change the global HAND_SIZE variable
     '''
     global HAND_SIZE
-    print(LINE_SEPERATE, '\nChange Hand Size', '\nCurrent:', HAND_SIZE)
+    print('\nChange Hand Size', '\nCurrent:', HAND_SIZE)
     while True:
         handsize = input('Enter a number or (Cancel [c] )')
 
@@ -313,7 +282,7 @@ def changeHandSize():
 
         elif handsize.isdigit():
             HAND_SIZE = int(handsize)
-            print('Successfully Changed Your Hand Size', LINE_SEPERATE)
+            print('Successfully Changed Your Hand Size')
             break
         else:
             print('Only numbers allowed.')
@@ -324,7 +293,7 @@ def changeRounds():
     Allows the user to change the global NUM_OF_ROUND variable
     '''
     global NUM_OF_ROUND
-    print(LINE_SEPERATE, '\nChange Rounds', '\nCurrent:', NUM_OF_ROUND)
+    print('\nChange Rounds', '\nCurrent:', NUM_OF_ROUND)
     while True:
         round = input('Enter a number or (Cancel [c] )')
 
@@ -334,7 +303,7 @@ def changeRounds():
         elif round.isdigit():
             if int(round) >= 1:
                 NUM_OF_ROUND = int(round)
-                print('Successfully Changed Game Rounds', LINE_SEPERATE)
+                print('Successfully Changed Game Rounds')
                 break
             else:
                 print('Number must be greater than 0.')
@@ -348,7 +317,7 @@ def changeDifficulty():
     '''
     global DIFFICULTY
 
-    print(LINE_SEPERATE, '\nChange Difficulty')
+    print('\nChange Difficulty')
     while True:
         diff = input('Enter a number or (Cancel [c] )')
 
@@ -365,8 +334,7 @@ def endGame(hands):
     '''
     Dismisses the player provinding recorded stats.
     '''
-    print(LINE_SEPERATE,
-          '\nThanks for playing!',
+    print('\nThanks for playing!',
           '\nDifficulty:', DIF_CHOICE.get(DIFFICULTY),
           '\nTotal Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m',
           '\nTotal Rounds Played:', TOTAL_ROUNDS)
@@ -387,7 +355,6 @@ def playGame(wordsLoaded, choice):
     print('\nWelcome to the Scrabble Game!', '\nHand Size:',
           HAND_SIZE)
     while True:
-        print(LINE_SEPERATE)
         print('Current Score:', TOTAL_SCORE)
         print('\n• Start Game      [s]',
               '\n• Options         [o]',
@@ -446,7 +413,6 @@ def playGame(wordsLoaded, choice):
 
 # Start Game
 if __name__ == '__main__':
-    wordsLoaded = loadWords()
     choseDifficulty()
     listWords = listWord(wordsLoaded)
     playGame(wordsLoaded, DIFFICULTY)
