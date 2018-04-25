@@ -59,3 +59,25 @@ def endArt():
     print(center, "    |_|  |_| |_|\__,_|_| |_|_|\_\___/ |_|  \___/|_|    |_|    |_|\__,_|\__, |_|_| |_|\__, |")
     print(center, "                                                                         _/ |          _/ |")
     print(center, "                                                                       |___/          |__/ ")
+
+
+def yourTurn():
+    center = '\t' * 7
+    print(center, " __     __                _______               ")
+    print(center, " \ \   / /               |__   __|              ")
+    print(center, "  \ \_/ /__  _   _ _ __     | |_   _ _ __ _ __  ")
+    print(center, "   \   / _ \| | | | '__|    | | | | | '__| '_ \ ")
+    print(center, "    | | (_) | |_| | |       | | |_| | |  | | | |")
+    print(center, "    |_|\___/ \__,_|_|       |_|\__,_|_|  |_| |_|")
+
+
+def enemyTurn():
+    center = '\t' * 6
+    print(center, "  ______                              _______               ")
+    print(center, " |  ____|                            |__   __|              ")
+    print(center, " | |__   _ __   ___ _ __ ___  _   _     | |_   _ _ __ _ __  ")
+    print(center, " |  __| | '_ \ / _ \ '_ ` _ \| | | |    | | | | | '__| '_ \ ")
+    print(center, " | |____| | | |  __/ | | | | | |_| |    | | |_| | |  | | | |")
+    print(center, " |______|_| |_|\___|_| |_| |_|\__, |    |_|\__,_|_|  |_| |_|")
+    print(center, "                               __/ |                        ")
+    print(center, "                              |___/                         ")

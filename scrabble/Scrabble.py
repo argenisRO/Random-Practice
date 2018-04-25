@@ -52,10 +52,11 @@ def displayHand(hand):
     '''
     Displays the current hand to the console
     '''
+    printedHand = []
     for letter in hand.keys():
         for j in range(hand[letter]):
-            print(letter, end=" ")
-    print()
+            printedHand.append(letter)
+    return ' '.join(printedHand)
 
 
 def returnHand(hand):
@@ -141,40 +142,54 @@ def playHand(hand, wordsLoaded, n):
     global TOTAL_SCORE
     global ROUND
     invalid = 1
+    centered = '\t'*9
+    print(LINE_SEPERATE)
+
     while calculateHandlen(hand) > 0:
-        print('Round', str(ROUND) + '!')
-        print('\n'*10)
-        print("\nCurrent Hand: ", end=' ')
-        displayHand(hand)
+        load.ascii.titleArt()
+        load.ascii.yourTurn()
+
+        print('\n'*4)
+        print(centered, "Round", str(ROUND) + "!", ('\n'*3))
+        print(centered, "Current Hand: {}".format(displayHand(hand)))
+
         if invalid == 4:
-            print('Moving on with the game.')
+            print(LINE_SEPERATE)
+            print(centered, 'Moving on with the game.')
             userInput == '.'
             break
 
-        userInput = input('Enter a word ([.] to finish): ')
+        print(centered, "Enter a word\n", centered, "[.] to finish")
+        userInput = input(centered+'               ')
 
         if userInput == '.':
             break
 
         elif not isValidWord(userInput, hand, wordsLoaded):
-            print('Invalid word, please try again.')
+            print(LINE_SEPERATE)
+            print(centered, 'Invalid word, please try again.')
             invalid += 1
 
         else:
+            print(LINE_SEPERATE)
             invalid = 0
             copy = TOTAL_SCORE
             TOTAL_SCORE += getWordScore(userInput, n)
             added = TOTAL_SCORE - copy
-            print('\r"', userInput, '"', 'earned',
-                  getWordScore(userInput, n), 'points')
-            print(' \033[92m+\033[0m Total Score Increased By: \033[92m{}\033[0m'.format(added))
-            print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
+            print(centered, '  "{}" earned {} points!'.format(
+                userInput, getWordScore(userInput, n)))
+            print(centered, ' \033[92m+\033[0m Score Increased By: \033[92m{}\033[0m'.format(added))
+            print(('\t'*10), '\033[92m{}\033[0m vs \033[91m{}\033[0m'.format(
+                TOTAL_SCORE, ROBOT_SCORE))
+
             hand = updateHand(hand, userInput)
 
     if userInput == '.':
-        print('Round Over. Total score:', TOTAL_SCORE, 'points.\n')
+        print(LINE_SEPERATE)
+        print(centered, 'Round Over. Total score:', TOTAL_SCORE, 'points.\n')
     else:
-        print('You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
+        print(LINE_SEPERATE)
+        print(centered, 'You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
 
 
 def loading():
@@ -438,12 +453,13 @@ def playGame(wordsLoaded, choice):
 
             # End of Game
             if TOTAL_SCORE > ROBOT_SCORE:
-                print("\033[92mYOU WIN!\033[0m")
-                print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
+                print(centered, "\033[92mYOU WIN!\033[0m")
+                print(centered, '\033[92m{}\033[0m vs \033[91m{}\033[0m'.format(
+                    TOTAL_SCORE, ROBOT_SCORE))
             else:
-                print("\033[91mYOU LOSE!\033[0m")
-                print('\033[91m' + str(ROBOT_SCORE), '\033[0m' +
-                      'vs'+'\033[92m', str(TOTAL_SCORE), '\033[0m')
+                print(centered, "\033[91mYOU LOSE!\033[0m")
+                print(centered, '\033[91m{}\033[0m vs \033[92m{}\033[0m'.format(
+                    ROBOT_SCORE, TOTAL_SCORE))
 
         elif userInput.lower() == 'o':
             print(LINE_SEPERATE)
