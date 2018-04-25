@@ -2,12 +2,11 @@
 # ArgenisRO
 # 6.00.1x Scrabble Example Personally Constructed
 
-# TODO: file not found
 
 allWords = {}
 wordList = []
 
-with open("words.txt", 'r') as wordFile:
+with open("load/words.txt", 'r') as wordFile:
     for e in wordFile:
         wordList.append(e.strip().lower())
 

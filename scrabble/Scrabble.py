@@ -10,6 +10,7 @@ import threading
 import itertools
 import time
 import load.word_load
+import load.ascii
 
 VOWELS = 'aeiou'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
@@ -21,7 +22,7 @@ LOADED = False
 wordsLoaded = load.word_load.allWords
 listWords = load.word_load.wordList
 DIFFICULTY = 'e'
-DIF_CHOICE = {'e': 'Easy', 'm': 'Medium', 'h': 'Hard'}
+DIF_CHOICE = {'e': '\033[92mEasy\033[0m', 'm': '\033[93mMedium\033[0m', 'h': '\033[91mHard\033[0m'}
 
 
 SCRABBLE_LETTER_VALUES = {
@@ -141,7 +142,8 @@ def playHand(hand, wordsLoaded, n):
     global ROUND
     invalid = 1
     while calculateHandlen(hand) > 0:
-        print('Round', str(ROUND)+'!')
+        print('Round', str(ROUND) + '!')
+        print('\n'*10)
         print("\nCurrent Hand: ", end=' ')
         displayHand(hand)
         if invalid == 4:
@@ -249,21 +251,27 @@ def compPlayHand(hand, wordsLoaded, n, dif):
     print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
 
 
-def choseDifficulty():
+def introduction():
     '''
-    Greeting message for user asking for 'difficulty' level
+    User greeting message asking for the 'difficulty' level
     '''
     global DIFFICULTY
-    print('\tScrabble', '\nChoose A Difficulty',
-          '\n• Easy     [e]',
-          '\n• Medium   [m]',
-          '\n• Hard     [h]')
+    centered = '\t'*9
+    print(LINE_SEPERATE)
 
     while True:
-        diffi = input()
-        if diffi.lower() not in ['e', 'm', 'h']:
-            print("Invalid Input. Please choose between (e), (m), and (h)")
+        load.ascii.titleArt()
+        load.ascii.difficultyArt()
+        print(centered, '    Easy     [e]')
+        print(centered, '    Medium   [m]')
+        print(centered, '    Hard     [h]')
+        diffi = input(centered+'           ')
+        if diffi.lower() not in ['e', 'm', 'h', 'easy', 'medium', 'hard']:
+            print(LINE_SEPERATE)
+            print(centered, "     Invalid Input.")
+            print(('\t'*8), "Please choose between (e), (m), and (h)")
         else:
+            print(LINE_SEPERATE)
             DIFFICULTY = diffi
             break
 
@@ -273,19 +281,34 @@ def changeHandSize():
     Allows the user to change the global HAND_SIZE variable
     '''
     global HAND_SIZE
-    print('\nChange Hand Size', '\nCurrent:', HAND_SIZE)
-    while True:
-        handsize = input('Enter a number or (Cancel [c] )')
+    centered = '\t'*9
+    print(LINE_SEPERATE)
 
-        if handsize.lower() in ['cancel', 'c']:
+    while True:
+        load.ascii.titleArt()
+        load.ascii.optionsArt()
+        print(centered + "     \033[1mCHANGE HAND SIZE\033[0m\n")
+        print(centered, "Current Hand Size: {}".format(HAND_SIZE))
+        print(centered, "Enter a number\n", centered, '[e] to exit')
+
+        handsize = input(centered+'             ')
+
+        if handsize.lower() in ['exit', 'e']:
+            print(LINE_SEPERATE)
             break
 
         elif handsize.isdigit():
-            HAND_SIZE = int(handsize)
-            print('Successfully Changed Your Hand Size')
-            break
+            if int(round) >= 1:
+                print(LINE_SEPERATE)
+                HAND_SIZE = int(handsize)
+                print(centered, 'Successfully Changed Your Hand Size')
+                break
+            else:
+                print(LINE_SEPERATE)
+                print(centered, 'Number must be greater than 0.')
         else:
-            print('Only numbers allowed.')
+            print(LINE_SEPERATE)
+            print(centered, 'Only numbers allowed.')
 
 
 def changeRounds():
@@ -293,22 +316,34 @@ def changeRounds():
     Allows the user to change the global NUM_OF_ROUND variable
     '''
     global NUM_OF_ROUND
-    print('\nChange Rounds', '\nCurrent:', NUM_OF_ROUND)
-    while True:
-        round = input('Enter a number or (Cancel [c] )')
+    centered = '\t'*9
+    print(LINE_SEPERATE)
 
-        if round.lower() in ['cancel', 'c']:
+    while True:
+        load.ascii.titleArt()
+        load.ascii.optionsArt()
+        print(centered + "     \033[1mCHANGE ROUNDS\033[0m\n")
+        print(centered, "Current Rounds: {}".format(NUM_OF_ROUND))
+        print(centered, "Enter a number\n", centered, '[e] to exit')
+
+        round = input(centered+'             ')
+
+        if round.lower() in ['exit', 'e']:
+            print(LINE_SEPERATE)
             break
 
         elif round.isdigit():
             if int(round) >= 1:
+                print(LINE_SEPERATE)
                 NUM_OF_ROUND = int(round)
-                print('Successfully Changed Game Rounds')
+                print(centered, 'Successfully Changed Game Rounds')
                 break
             else:
-                print('Number must be greater than 0.')
+                print(LINE_SEPERATE)
+                print(centered, 'Number must be greater than 0.')
         else:
-            print('Only numbers allowed.')
+            print(LINE_SEPERATE)
+            print(centered, 'Invalid Input')
 
 
 def changeDifficulty():
@@ -316,17 +351,29 @@ def changeDifficulty():
     Allows the user to change the global DIFFICULTY variable
     '''
     global DIFFICULTY
+    centered = '\t'*9
+    print(LINE_SEPERATE)
 
-    print('\nChange Difficulty')
     while True:
-        diff = input('Enter a number or (Cancel [c] )')
+        load.ascii.titleArt()
+        load.ascii.optionsArt()
 
-        if diff.lower() not in DIF_CHOICE:
-            print("Invalid Input. Please choose between (e), (m), and (h)")
+        print(centered + "     \033[1mCHANGE DIFFICULTY\033[0m\n")
+        print(centered, "Current Difficulty: {}".format(DIF_CHOICE[DIFFICULTY]))
+        print(
+            centered, "Enter a difficulty:\n", centered, "Easy[e], Medium[m] or Hard[h]\n", centered, '[e] to exit')
+
+        userDifficulty = input(centered+'             ')
+
+        if userDifficulty.lower() not in DIF_CHOICE:
+            print(LINE_SEPERATE)
+            print(('\t'*7), "   Invalid Input. Please choose between (e), (m), and (h)")
 
         else:
-            DIFFICULTY = diff
-            print('\nSuccessfully Changed Game Difficulty to', DIF_CHOICE[diff])
+            print(LINE_SEPERATE)
+            DIFFICULTY = userDifficulty
+            print(('\t'*8), 'Successfully Changed Game Difficulty to',
+                  DIF_CHOICE[userDifficulty])
             break
 
 
@@ -334,10 +381,16 @@ def endGame(hands):
     '''
     Dismisses the player provinding recorded stats.
     '''
-    print('\nThanks for playing!',
-          '\nDifficulty:', DIF_CHOICE.get(DIFFICULTY),
-          '\nTotal Score:\033[92m', TOTAL_SCORE, '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m',
-          '\nTotal Rounds Played:', TOTAL_ROUNDS)
+    centered = '\t'*9
+    print(LINE_SEPERATE)
+
+    load.ascii.titleArt()
+    load.ascii.endArt()
+
+    print(centered, 'Difficulty:', DIF_CHOICE[DIFFICULTY])
+    print(centered, 'Total Score:\033[92m', TOTAL_SCORE,
+          '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m')
+    print(centered, 'Total Rounds Played:', TOTAL_ROUNDS)
 
 
 def playGame(wordsLoaded, choice):
@@ -351,15 +404,17 @@ def playGame(wordsLoaded, choice):
     global ROUND
     global NUM_OF_ROUND
     hands, robotHands = 0, 0
+    centered = '\t'*9
 
-    print('\nWelcome to the Scrabble Game!', '\nHand Size:',
-          HAND_SIZE)
     while True:
-        print('Current Score:', TOTAL_SCORE)
-        print('\n• Start Game      [s]',
-              '\n• Options         [o]',
-              '\n• End Game        [e]')
-        userInput = input()
+        load.ascii.titleArt()
+        load.ascii.menuArt()
+        print(centered, '• Start Game      [s]')
+        print(centered, '• Options         [o]')
+        print(centered, '• End Game        [e]')
+
+        userInput = input('\n'+centered+'           ')
+
         if userInput.lower() == 's':
             ROUND = 0
             while ROUND < NUM_OF_ROUND:
@@ -370,10 +425,12 @@ def playGame(wordsLoaded, choice):
                 dealtH = dealHand(HAND_SIZE)
                 playHand(dealtH, wordsLoaded, HAND_SIZE)
                 hands += 1
+                print(LINE_SEPERATE)
                 # Robot Turn
                 dealtI = dealHand(HAND_SIZE)
                 compPlayHand(dealtI, wordsLoaded, HAND_SIZE, choice)
                 robotHands += 1
+                print(LINE_SEPERATE)
 
             # End of Game
             if TOTAL_SCORE > ROBOT_SCORE:
@@ -385,34 +442,46 @@ def playGame(wordsLoaded, choice):
                       'vs'+'\033[92m', str(TOTAL_SCORE), '\033[0m')
 
         elif userInput.lower() == 'o':
+            print(LINE_SEPERATE)
             while True:
-                print('\n• Change Hand Size  [h]',
-                      '\n• Change Rounds     [r]',
-                      '\n• Change Difficulty [d]',
-                      '\n• Go Back           [e]')
-                optionsInput = input()
+                load.ascii.titleArt()
+                load.ascii.optionsArt()
+                print(centered, '• Change Hand Size  [h]')
+                print(centered, '• Change Rounds     [r]')
+                print(centered, '• Change Difficulty [d]')
+                print(centered, '• Go Back           [e]')
+
+                optionsInput = input('\n'+centered+'           ')
+
                 if optionsInput == 'h':
                     changeHandSize()
+
                 elif optionsInput == 'r':
                     changeRounds()
+
                 elif optionsInput == 'd':
                     changeDifficulty()
 
                 elif optionsInput == 'e':
+                    print(LINE_SEPERATE)
                     break
+
+                else:
+                    print(LINE_SEPERATE)
+                    print(centered, '    Invalid command.')
 
         elif userInput.lower() == 'e':
             endGame(hands)
             break
 
         else:
-            print('Invalid command.')
+            print(LINE_SEPERATE)
+            print(centered, '    Invalid command.')
     else:  # Safe Check
         print("Something Went Wrong.", "'current' option is set to", choice)
 
 
 # Start Game
 if __name__ == '__main__':
-    choseDifficulty()
-    listWords = listWord(wordsLoaded)
+    introduction()
     playGame(wordsLoaded, DIFFICULTY)

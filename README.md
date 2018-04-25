@@ -1,2 +1,4 @@
 # mini_games
-Small Command Line Games Written In Python for fun
+Command Line Games Written In Python
+
+ASCII provided by "http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20"
