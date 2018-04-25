@@ -289,11 +289,11 @@ def changeHandSize():
         load.ascii.optionsArt()
         print(centered + "     \033[1mCHANGE HAND SIZE\033[0m\n")
         print(centered, "Current Hand Size: {}".format(HAND_SIZE))
-        print(centered, "Enter a number\n", centered, '[e] to exit')
+        print(centered, "Enter a number\n", centered, '[b] to go back')
 
         handsize = input(centered+'             ')
 
-        if handsize.lower() in ['exit', 'e']:
+        if handsize.lower() in ['back', 'b']:
             print(LINE_SEPERATE)
             break
 
@@ -324,11 +324,11 @@ def changeRounds():
         load.ascii.optionsArt()
         print(centered + "     \033[1mCHANGE ROUNDS\033[0m\n")
         print(centered, "Current Rounds: {}".format(NUM_OF_ROUND))
-        print(centered, "Enter a number\n", centered, '[e] to exit')
+        print(centered, "Enter a number\n", centered, '[b] to go back')
 
         round = input(centered+'             ')
 
-        if round.lower() in ['exit', 'e']:
+        if round.lower() in ['back', 'b']:
             print(LINE_SEPERATE)
             break
 
@@ -361,9 +361,13 @@ def changeDifficulty():
         print(centered + "     \033[1mCHANGE DIFFICULTY\033[0m\n")
         print(centered, "Current Difficulty: {}".format(DIF_CHOICE[DIFFICULTY]))
         print(
-            centered, "Enter a difficulty:\n", centered, "Easy[e], Medium[m] or Hard[h]\n", centered, '[e] to exit')
+            centered, "Enter a difficulty:\n", centered, "Easy[e], Medium[m] or Hard[h]\n", centered, '[b] to go back')
 
         userDifficulty = input(centered+'             ')
+
+        if userDifficulty.lower() in ['back', 'b']:
+            print(LINE_SEPERATE)
+            break
 
         if userDifficulty.lower() not in DIF_CHOICE:
             print(LINE_SEPERATE)
@@ -449,7 +453,7 @@ def playGame(wordsLoaded, choice):
                 print(centered, '• Change Hand Size  [h]')
                 print(centered, '• Change Rounds     [r]')
                 print(centered, '• Change Difficulty [d]')
-                print(centered, '• Go Back           [e]')
+                print(centered, '• Go Back           [b]')
 
                 optionsInput = input('\n'+centered+'           ')
 
@@ -462,7 +466,7 @@ def playGame(wordsLoaded, choice):
                 elif optionsInput == 'd':
                     changeDifficulty()
 
-                elif optionsInput == 'e':
+                elif optionsInput == 'b':
                     print(LINE_SEPERATE)
                     break
 
@@ -470,7 +474,7 @@ def playGame(wordsLoaded, choice):
                     print(LINE_SEPERATE)
                     print(centered, '    Invalid command.')
 
-        elif userInput.lower() == 'e':
+        elif userInput.lower() == 'b':
             endGame(hands)
             break
 
