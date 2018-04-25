@@ -415,7 +415,7 @@ def playGame(wordsLoaded, choice):
         load.ascii.menuArt()
         print(centered, '• Start Game      [s]')
         print(centered, '• Options         [o]')
-        print(centered, '• End Game        [e]')
+        print(centered, '• End Game        [b]')
 
         userInput = input('\n'+centered+'           ')
 
