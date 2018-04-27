@@ -34,6 +34,21 @@ SCRABBLE_LETTER_VALUES = {
 }
 
 
+def loading():
+    '''
+    Tiny animation while the bot searches for words
+    '''
+    print('\n')
+    counter = 0
+
+    for dot in itertools.cycle(['.', '..', '...', '\x1b[2K']):
+        if LOADED:
+            break
+        sys.stdout.write('\r' + dot)
+        sys.stdout.flush()
+        time.sleep(0.7)
+
+
 def getWordScore(word, n):
     '''
     Returns the score of a given word
@@ -101,6 +116,25 @@ def updateHand(hand, word):
     return tempHand
 
 
+def calculateHandlen(hand):
+    '''
+    Returns the sum length of a hand by scanning through 'hand'
+    And reading all the Values of each Keys.
+    '''
+    counter = 0
+    for e in hand:
+        stored = hand.get(e)
+        counter += stored
+    return counter
+
+    if userInput == '.':
+        print(LINE_SEPERATE)
+        print(centered, 'Round Over. Total score:', TOTAL_SCORE, 'points.\n')
+    else:
+        print(LINE_SEPERATE)
+        print(centered, 'You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
+
+
 def isValidWord(word, hand, wordsLoaded):
     '''
     Returns True or False based on if 'word'
@@ -123,90 +157,6 @@ def isValidWord(word, hand, wordsLoaded):
     return True
 
 
-def calculateHandlen(hand):
-    '''
-    Returns the sum length of a hand by scanning through 'hand'
-    And reading all the Values of each Keys.
-    '''
-    counter = 0
-    for e in hand:
-        stored = hand.get(e)
-        counter += stored
-    return counter
-
-
-def playHand(hand, wordsLoaded, n):
-    '''
-    Interactive User Player Base
-    '''
-    global TOTAL_SCORE
-    global ROUND
-    invalid = 1
-    centered = '\t'*9
-    print(LINE_SEPERATE)
-
-    while calculateHandlen(hand) > 0:
-        load.ascii.titleArt()
-        load.ascii.yourTurn()
-
-        print('\n'*4)
-        print(centered, "Round", str(ROUND) + "!", ('\n'*3))
-        print(centered, "Current Hand: {}".format(displayHand(hand)))
-
-        if invalid == 4:
-            print(LINE_SEPERATE)
-            print(centered, 'Moving on with the game.')
-            userInput == '.'
-            break
-
-        print(centered, "Enter a word\n", centered, "[.] to finish")
-        userInput = input(centered+'               ')
-
-        if userInput == '.':
-            break
-
-        elif not isValidWord(userInput, hand, wordsLoaded):
-            print(LINE_SEPERATE)
-            print(centered, 'Invalid word, please try again.')
-            invalid += 1
-
-        else:
-            print(LINE_SEPERATE)
-            invalid = 0
-            copy = TOTAL_SCORE
-            TOTAL_SCORE += getWordScore(userInput, n)
-            added = TOTAL_SCORE - copy
-            print(centered, '  "{}" earned {} points!'.format(
-                userInput, getWordScore(userInput, n)))
-            print(centered, ' \033[92m+\033[0m Score Increased By: \033[92m{}\033[0m'.format(added))
-            print(('\t'*10), '\033[92m{}\033[0m vs \033[91m{}\033[0m'.format(
-                TOTAL_SCORE, ROBOT_SCORE))
-
-            hand = updateHand(hand, userInput)
-
-    if userInput == '.':
-        print(LINE_SEPERATE)
-        print(centered, 'Round Over. Total score:', TOTAL_SCORE, 'points.\n')
-    else:
-        print(LINE_SEPERATE)
-        print(centered, 'You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
-
-
-def loading():
-    '''
-    Tiny animation while the bot searches for words
-    '''
-    print('\n')
-    counter = 0
-
-    for dot in itertools.cycle(['.', '..', '...', '\x1b[2K']):
-        if LOADED:
-            break
-        sys.stdout.write('\r' + dot)
-        sys.stdout.flush()
-        time.sleep(0.7)
-
-
 def compChooseWord(hand, wordsLoaded, n):
     '''
     Returns the best chosen word from 'wordsLoaded'
@@ -227,43 +177,6 @@ def compChooseWord(hand, wordsLoaded, n):
                     bestScore = score
                     bestWord = word
     return bestWord
-
-
-def compPlayHand(hand, wordsLoaded, n, dif):
-    '''
-    Computer plays Scrabble against alone.
-    '''
-    global ROBOT_SCORE
-    global LOADED
-
-    totalScore = 0
-    while (calculateHandlen(hand) > 0):
-        LOADED = False
-
-        print("\nCurrent Hand: ", end=' ')
-        displayHand(hand)
-
-        load = threading.Thread(target=loading)
-        load.start()
-        word = compChooseWord(hand, wordsLoaded, n)
-        LOADED = True
-
-        if word == None:
-            break
-
-        else:
-            if not isValidWord(word, hand, wordsLoaded):
-                print("This... can't be happening!")
-                break
-            else:
-                score = getWordScore(word, n)
-                ROBOT_SCORE += score
-                print('\r"' + word + '" earned ' + str(score) +
-                      ' points. Total: ' + str(ROBOT_SCORE) + ' points')
-                hand = updateHand(hand, word)
-                print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
-                print()
-    print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
 
 
 def introduction():
@@ -289,6 +202,22 @@ def introduction():
             print(LINE_SEPERATE)
             DIFFICULTY = diffi
             break
+
+
+def endGame(hands):
+    '''
+    Dismisses the player provinding recorded stats.
+    '''
+    centered = '\t'*9
+    print(LINE_SEPERATE)
+
+    load.ascii.titleArt()
+    load.ascii.endArt()
+
+    print(centered, 'Difficulty:', DIF_CHOICE[DIFFICULTY])
+    print(centered, 'Total Score:\033[92m', TOTAL_SCORE,
+          '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m')
+    print(centered, 'Total Rounds Played:', TOTAL_ROUNDS)
 
 
 def changeHandSize():
@@ -396,20 +325,91 @@ def changeDifficulty():
             break
 
 
-def endGame(hands):
+def playHand(hand, wordsLoaded, n):
     '''
-    Dismisses the player provinding recorded stats.
+    Interactive User Player Base
     '''
+    global TOTAL_SCORE
+    global ROUND
+    invalid = 1
     centered = '\t'*9
     print(LINE_SEPERATE)
 
-    load.ascii.titleArt()
-    load.ascii.endArt()
+    while calculateHandlen(hand) > 0:
+        load.ascii.titleArt()
+        load.ascii.yourTurn()
 
-    print(centered, 'Difficulty:', DIF_CHOICE[DIFFICULTY])
-    print(centered, 'Total Score:\033[92m', TOTAL_SCORE,
-          '\033[0mvs\033[91m', ROBOT_SCORE, '\033[0m')
-    print(centered, 'Total Rounds Played:', TOTAL_ROUNDS)
+        print('\n'*4)
+        print(centered, "Round", str(ROUND) + "!", ('\n'*3))
+        print(centered, "Current Hand: {}".format(displayHand(hand)))
+
+        if invalid == 4:
+            print(LINE_SEPERATE)
+            print(centered, 'Moving on with the game.')
+            userInput == '.'
+            break
+
+        print(centered, "Enter a word\n", centered, "[.] to finish")
+        userInput = input(centered+'               ')
+
+        if userInput == '.':
+            break
+
+        elif not isValidWord(userInput, hand, wordsLoaded):
+            print(LINE_SEPERATE)
+            print(centered, 'Invalid word, please try again.')
+            invalid += 1
+
+        else:
+            print(LINE_SEPERATE)
+            invalid = 0
+            copy = TOTAL_SCORE
+            TOTAL_SCORE += getWordScore(userInput, n)
+            added = TOTAL_SCORE - copy
+            print(centered, '  "{}" earned {} points!'.format(
+                userInput, getWordScore(userInput, n)))
+            print(centered, ' \033[92m+\033[0m Score Increased By: \033[92m{}\033[0m'.format(added))
+            print(('\t'*10), '\033[92m{}\033[0m vs \033[91m{}\033[0m'.format(
+                TOTAL_SCORE, ROBOT_SCORE))
+
+            hand = updateHand(hand, userInput)
+
+
+def compPlayHand(hand, wordsLoaded, n, dif):
+    '''
+    Computer plays Scrabble against alone.
+    '''
+    global ROBOT_SCORE
+    global LOADED
+
+    totalScore = 0
+    while (calculateHandlen(hand) > 0):
+        LOADED = False
+
+        print("\nCurrent Hand: ", end=' ')
+        displayHand(hand)
+
+        load = threading.Thread(target=loading)
+        load.start()
+        word = compChooseWord(hand, wordsLoaded, n)
+        LOADED = True
+
+        if word == None:
+            break
+
+        else:
+            if not isValidWord(word, hand, wordsLoaded):
+                print("This... can't be happening!")
+                break
+            else:
+                score = getWordScore(word, n)
+                ROBOT_SCORE += score
+                print('\r"' + word + '" earned ' + str(score) +
+                      ' points. Total: ' + str(ROBOT_SCORE) + ' points')
+                hand = updateHand(hand, word)
+                print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
+                print()
+    print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
 
 
 def playGame(wordsLoaded, choice):
