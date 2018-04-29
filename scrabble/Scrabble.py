@@ -19,8 +19,7 @@ TOTAL_SCORE, TOTAL_ROUNDS, ROBOT_SCORE, ROUND = 0, 0, 0, 0
 NUM_OF_ROUND = 2
 LINE_SEPERATE = "\n" * 100
 LOADED = False
-wordsLoaded = load.word_load.allWords
-listWords = load.word_load.wordList
+wLoad = load.word_load.allWords
 DIFFICULTY = 'e'
 DIF_CHOICE = {'e': '\033[92mEasy\033[0m', 'm': '\033[93mMedium\033[0m', 'h': '\033[91mHard\033[0m'}
 
@@ -38,8 +37,6 @@ def loading():
     '''
     Tiny animation while the bot searches for words
     '''
-    print('\n')
-    counter = 0
 
     for dot in itertools.cycle(['.', '..', '...', '\x1b[2K']):
         if LOADED:
@@ -63,26 +60,25 @@ def getWordScore(word, n):
     return result
 
 
-def displayHand(hand):
+def displayHand(hand, output):
     '''
     Displays the current hand to the console
     '''
-    printedHand = []
-    for letter in hand.keys():
-        for j in range(hand[letter]):
-            printedHand.append(letter)
-    return ' '.join(printedHand)
-
-
-def returnHand(hand):
-    '''
-    Returns the current hand to in a list
-    '''
-    handList = []
-    for letter in hand.keys():
-        for j in range(hand[letter]):
-            handList.append(letter)
-    return handList
+    if output == 'print':
+        printedHand = []
+        for letter in hand:
+            for j in range(hand[letter]):
+                printedHand.append(letter)
+        return ' '.join(printedHand)
+    elif output == 'return':
+        handList = []
+        for letter in hand:
+            for j in range(hand[letter]):
+                handList.append(letter)
+        return handList
+    else:
+        print('Error Displaying Hand! - Hand:', hand, 'Output:', output)
+        raise
 
 
 def dealHand(n):
@@ -135,15 +131,15 @@ def calculateHandlen(hand):
         print(centered, 'You ran out of letters. Total score:', TOTAL_SCORE, 'points.')
 
 
-def isValidWord(word, hand, wordsLoaded):
+def isValidWord(word, hand):
     '''
     Returns True or False based on if 'word'
-    Is valid from within 'wordsLoaded' and is not empty.
+    Is valid from within 'wLoad' and is not empty.
     '''
 
     tempHand = hand.copy()
 
-    if word not in listWords:
+    if word not in wLoad[word[0]]:
         return False
 
     for letter in word:
@@ -157,21 +153,20 @@ def isValidWord(word, hand, wordsLoaded):
     return True
 
 
-def compChooseWord(hand, wordsLoaded, n):
+def compChooseWord(hand, n):
     '''
-    Returns the best chosen word from 'wordsLoaded'
+    Returns the best chosen word from 'wLoad'
     for the computer player
     '''
 
     bestScore = 0
     bestWord = None
 
-    for handLetter in returnHand(hand):
-        stored = wordsLoaded.get(handLetter)
-        for word in stored:
-            if (DIF_CHOICE[DIFFICULTY] == 'Easy') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 2) or \
-               (DIF_CHOICE[DIFFICULTY] == 'Medium') and (isValidWord(word, hand, wordsLoaded)) and (len(word) <= 4) or \
-               (DIF_CHOICE[DIFFICULTY] == 'Hard') and (isValidWord(word, hand, wordsLoaded)):
+    for handLetter in displayHand(hand, 'return'):
+        for word in wLoad[handLetter]:
+            if (DIFFICULTY == 'e') and (isValidWord(word, hand)) and (len(word) <= 2) or \
+               (DIFFICULTY == 'm') and (isValidWord(word, hand)) and (len(word) <= 4) or \
+               (DIFFICULTY == 'h') and (isValidWord(word, hand)):
                 score = getWordScore(word, n)
                 if (score > bestScore):
                     bestScore = score
@@ -193,18 +188,18 @@ def introduction():
         print(centered, '    Easy     [e]')
         print(centered, '    Medium   [m]')
         print(centered, '    Hard     [h]')
-        diffi = input(centered+'           ')
-        if diffi.lower() not in ['e', 'm', 'h', 'easy', 'medium', 'hard']:
+        userDifficulty = input(centered+'           ')
+        if userDifficulty.lower() not in ['e', 'm', 'h', 'easy', 'medium', 'hard']:
             print(LINE_SEPERATE)
             print(centered, "     Invalid Input.")
             print(('\t'*8), "Please choose between (e), (m), and (h)")
         else:
             print(LINE_SEPERATE)
-            DIFFICULTY = diffi
+            DIFFICULTY = userDifficulty
             break
 
 
-def endGame(hands):
+def endGame():
     '''
     Dismisses the player provinding recorded stats.
     '''
@@ -325,7 +320,7 @@ def changeDifficulty():
             break
 
 
-def playHand(hand, wordsLoaded, n):
+def playHand(hand, n):
     '''
     Interactive User Player Base
     '''
@@ -341,7 +336,7 @@ def playHand(hand, wordsLoaded, n):
 
         print('\n'*4)
         print(centered, "Round", str(ROUND) + "!", ('\n'*3))
-        print(centered, "Current Hand: {}".format(displayHand(hand)))
+        print(centered, "Current Hand: {}".format(displayHand(hand, 'print')))
 
         if invalid == 4:
             print(LINE_SEPERATE)
@@ -350,12 +345,16 @@ def playHand(hand, wordsLoaded, n):
             break
 
         print(centered, "Enter a word\n", centered, "[.] to finish")
-        userInput = input(centered+'               ')
+        try:
+            userInput = input(centered+'               ')
+        except KeyError():
+            print(LINE_SEPERATE)
+            print(centered, 'Invalid word, please try again.')
 
         if userInput == '.':
             break
 
-        elif not isValidWord(userInput, hand, wordsLoaded):
+        elif not isValidWord(userInput, hand):
             print(LINE_SEPERATE)
             print(centered, 'Invalid word, please try again.')
             invalid += 1
@@ -375,7 +374,7 @@ def playHand(hand, wordsLoaded, n):
             hand = updateHand(hand, userInput)
 
 
-def compPlayHand(hand, wordsLoaded, n, dif):
+def compPlayHand(hand, n, dif):
     '''
     Computer plays Scrabble against alone.
     '''
@@ -387,18 +386,18 @@ def compPlayHand(hand, wordsLoaded, n, dif):
         LOADED = False
 
         print("\nCurrent Hand: ", end=' ')
-        displayHand(hand)
+        displayHand(hand, 'print')
 
         load = threading.Thread(target=loading)
         load.start()
-        word = compChooseWord(hand, wordsLoaded, n)
+        word = compChooseWord(hand, n)
         LOADED = True
 
         if word == None:
             break
 
         else:
-            if not isValidWord(word, hand, wordsLoaded):
+            if not isValidWord(word, hand):
                 print("This... can't be happening!")
                 break
             else:
@@ -412,7 +411,7 @@ def compPlayHand(hand, wordsLoaded, n, dif):
     print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
 
 
-def playGame(wordsLoaded, choice):
+def playGame(choice):
     '''
     Scrabble Game
     '''
@@ -442,12 +441,12 @@ def playGame(wordsLoaded, choice):
 
                 # Player Turn
                 dealtH = dealHand(HAND_SIZE)
-                playHand(dealtH, wordsLoaded, HAND_SIZE)
+                playHand(dealtH, HAND_SIZE)
                 hands += 1
                 print(LINE_SEPERATE)
                 # Robot Turn
                 dealtI = dealHand(HAND_SIZE)
-                compPlayHand(dealtI, wordsLoaded, HAND_SIZE, choice)
+                compPlayHand(dealtI, HAND_SIZE, choice)
                 robotHands += 1
                 print(LINE_SEPERATE)
 
@@ -491,7 +490,7 @@ def playGame(wordsLoaded, choice):
                     print(centered, '    Invalid command.')
 
         elif userInput.lower() == 'b':
-            endGame(hands)
+            endGame()
             break
 
         else:
@@ -504,4 +503,4 @@ def playGame(wordsLoaded, choice):
 # Start Game
 if __name__ == '__main__':
     introduction()
-    playGame(wordsLoaded, DIFFICULTY)
+    playGame(DIFFICULTY)

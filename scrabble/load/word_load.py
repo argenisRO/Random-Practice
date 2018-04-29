@@ -7,11 +7,9 @@ allWords = {}
 wordList = []
 
 with open("load/words.txt", 'r') as wordFile:
-    for e in wordFile:
-        wordList.append(e.strip().lower())
-
-for word in wordList:
-    if word[0] not in allWords:
-        allWords[word[0]] = []
-    else:
-        allWords[word[0]].append(word)
+    for line in wordFile:
+        word = line.strip().lower()
+        if word[0] not in allWords:
+            allWords[word[0]] = []
+        else:
+            allWords[word[0]].append(word)
