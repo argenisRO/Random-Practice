@@ -4,7 +4,6 @@
 
 
 allWords = {}
-wordList = []
 
 with open("load/words.txt", 'r') as wordFile:
     for line in wordFile:

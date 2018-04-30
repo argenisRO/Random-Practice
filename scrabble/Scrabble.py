@@ -35,7 +35,7 @@ SCRABBLE_LETTER_VALUES = {
 
 def loading():
     '''
-    Tiny animation while the bot searches for words
+    Loading Animation
     '''
 
     for dot in itertools.cycle(['.', '..', '...', '\x1b[2K']):
@@ -77,8 +77,7 @@ def displayHand(hand, output):
                 handList.append(letter)
         return handList
     else:
-        print('Error Displaying Hand! - Hand:', hand, 'Output:', output)
-        raise
+        raise ValueError('Error Displaying Hand! - Hand:', hand, 'Output:', output)
 
 
 def dealHand(n):
@@ -237,10 +236,10 @@ def changeHandSize():
             break
 
         elif handsize.isdigit():
-            if int(round) >= 1:
+            if int(handsize) >= 1:
                 print(LINE_SEPERATE)
                 HAND_SIZE = int(handsize)
-                print(centered, 'Successfully Changed Your Hand Size')
+                print(('\t'*8), '   Successfully Changed Your Hand Size')
                 break
             else:
                 print(LINE_SEPERATE)
@@ -275,7 +274,7 @@ def changeRounds():
             if int(round) >= 1:
                 print(LINE_SEPERATE)
                 NUM_OF_ROUND = int(round)
-                print(centered, 'Successfully Changed Game Rounds')
+                print(('\t'*8), '   Successfully Changed Game Rounds')
                 break
             else:
                 print(LINE_SEPERATE)
@@ -334,8 +333,11 @@ def playHand(hand, n):
         load.ascii.titleArt()
         load.ascii.yourTurn()
 
-        print('\n'*4)
-        print(centered, "Round", str(ROUND) + "!", ('\n'*3))
+        print('\n'*2)
+        print(centered, 'Round {}!   - {} vs {}'.format((str(ROUND)),
+                                                        ('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m'),
+                                                        ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m')))
+        print('\n')
         print(centered, "Current Hand: {}".format(displayHand(hand, 'print')))
 
         if invalid == 4:
@@ -345,33 +347,30 @@ def playHand(hand, n):
             break
 
         print(centered, "Enter a word\n", centered, "[.] to finish")
-        try:
-            userInput = input(centered+'               ')
-        except KeyError():
-            print(LINE_SEPERATE)
-            print(centered, 'Invalid word, please try again.')
+
+        userInput = str(input(centered+'               '))
+        userInput = userInput.lower()
 
         if userInput == '.':
             break
 
-        elif not isValidWord(userInput, hand):
-            print(LINE_SEPERATE)
-            print(centered, 'Invalid word, please try again.')
-            invalid += 1
-
-        else:
+        elif isValidWord(userInput, hand):
             print(LINE_SEPERATE)
             invalid = 0
             copy = TOTAL_SCORE
             TOTAL_SCORE += getWordScore(userInput, n)
             added = TOTAL_SCORE - copy
-            print(centered, '  "{}" earned {} points!'.format(
+            print(centered, ' "{}" earned {} points!'.format(
                 userInput, getWordScore(userInput, n)))
-            print(centered, ' \033[92m+\033[0m Score Increased By: \033[92m{}\033[0m'.format(added))
-            print(('\t'*10), '\033[92m{}\033[0m vs \033[91m{}\033[0m'.format(
-                TOTAL_SCORE, ROBOT_SCORE))
-
+            print(centered, '{} Score Increased By: {}'.format(('\033[92m+\033[0m'),
+                                                               ('\033[92m' + str(added) + '\033[0m')))
+            print(('\t'*10), '{} vs {}'.format(('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m'),
+                                               ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m')))
             hand = updateHand(hand, userInput)
+        else:
+            print(LINE_SEPERATE)
+            print(centered, 'Invalid word, please try again.')
+            invalid += 1
 
 
 def compPlayHand(hand, n, dif):
@@ -381,34 +380,45 @@ def compPlayHand(hand, n, dif):
     global ROBOT_SCORE
     global LOADED
 
+    centered = '\t'*9
+    print(LINE_SEPERATE)
+
     totalScore = 0
     while (calculateHandlen(hand) > 0):
+        load.ascii.titleArt()
+        load.ascii.enemyTurn()
+
+        print('\n'*2)
+        print(centered, 'Round {}!   - {} vs {}'.format((str(ROUND)),
+                                                        ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m'),
+                                                        ('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m')))
+        print('\n')
+        print(centered, "Current Hand: {}".format(displayHand(hand, 'print')))
+
         LOADED = False
 
-        print("\nCurrent Hand: ", end=' ')
-        displayHand(hand, 'print')
-
-        load = threading.Thread(target=loading)
-        load.start()
+        loader = threading.Thread(target=loading)
+        loader.start()
         word = compChooseWord(hand, n)
         LOADED = True
 
-        if word == None:
+        time.sleep(3)
+
+        if word is None:
             break
 
         else:
+            print(LINE_SEPERATE)
             if not isValidWord(word, hand):
                 print("This... can't be happening!")
                 break
             else:
                 score = getWordScore(word, n)
                 ROBOT_SCORE += score
-                print('\r"' + word + '" earned ' + str(score) +
-                      ' points. Total: ' + str(ROBOT_SCORE) + ' points')
+                print(centered, '"{}" earned {} points. Total: {}'.format(word, score, ROBOT_SCORE))
                 hand = updateHand(hand, word)
-                print('\033[92m', TOTAL_SCORE, '\033[0m'+'vs'+'\033[91m', ROBOT_SCORE, '\033[0m')
-                print()
-    print('\rTotal score: ' + str(ROBOT_SCORE) + ' points.\n')
+                print(centered, '{} vs {}'.format(('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m'),
+                                                  ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m')))
 
 
 def playGame(choice):
@@ -452,13 +462,14 @@ def playGame(choice):
 
             # End of Game
             if TOTAL_SCORE > ROBOT_SCORE:
-                print(centered, "\033[92mYOU WIN!\033[0m")
-                print(centered, '\033[92m{}\033[0m vs \033[91m{}\033[0m'.format(
-                    TOTAL_SCORE, ROBOT_SCORE))
+                print(centered, "       \033[92mYOU WIN!\033[0m")
+                print(centered, '     {} vs {}'.format(('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m'),
+                                                       ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m')))
+
             else:
-                print(centered, "\033[91mYOU LOSE!\033[0m")
-                print(centered, '\033[91m{}\033[0m vs \033[92m{}\033[0m'.format(
-                    ROBOT_SCORE, TOTAL_SCORE))
+                print(centered, "  \033[91mYOU LOSE!\033[0m")
+                print(centered, ' {} vs {}'.format(('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m'),
+                                                   ('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m')))
 
         elif userInput.lower() == 'o':
             print(LINE_SEPERATE)

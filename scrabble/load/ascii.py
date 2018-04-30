@@ -72,7 +72,7 @@ def yourTurn():
 
 
 def enemyTurn():
-    center = '\t' * 6
+    center = '\t' * 7
     print(center, "  ______                              _______               ")
     print(center, " |  ____|                            |__   __|              ")
     print(center, " | |__   _ __   ___ _ __ ___  _   _     | |_   _ _ __ _ __  ")
