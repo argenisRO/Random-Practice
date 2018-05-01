@@ -348,29 +348,34 @@ def playHand(hand, n):
 
         print(centered, "Enter a word\n", centered, "[.] to finish")
 
-        userInput = str(input(centered+'               '))
-        userInput = userInput.lower()
+        try:
+            userInput = str(input(centered+'               '))
+            userInput = userInput.lower()
 
-        if userInput == '.':
-            break
+            if userInput == '.':
+                break
 
-        elif isValidWord(userInput, hand):
+            elif not isValidWord(userInput, hand):
+                print(LINE_SEPERATE)
+                print(centered, 'Invalid word, please try again.')
+                invalid += 1
+
+            else:
+                print(LINE_SEPERATE)
+                invalid = 0
+                copy = TOTAL_SCORE
+                TOTAL_SCORE += getWordScore(userInput, n)
+                added = TOTAL_SCORE - copy
+                print(centered, ' "{}" earned {} points!'.format(
+                    userInput, getWordScore(userInput, n)))
+                print(centered, '{} Score Increased By: {}'.format(('\033[92m+\033[0m'),
+                                                                   ('\033[92m' + str(added) + '\033[0m')))
+                print(('\t'*10), '{} vs {}'.format(('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m'),
+                                                   ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m')))
+                hand = updateHand(hand, userInput)
+        except (KeyError):
             print(LINE_SEPERATE)
-            invalid = 0
-            copy = TOTAL_SCORE
-            TOTAL_SCORE += getWordScore(userInput, n)
-            added = TOTAL_SCORE - copy
-            print(centered, ' "{}" earned {} points!'.format(
-                userInput, getWordScore(userInput, n)))
-            print(centered, '{} Score Increased By: {}'.format(('\033[92m+\033[0m'),
-                                                               ('\033[92m' + str(added) + '\033[0m')))
-            print(('\t'*10), '{} vs {}'.format(('\033[92m ' + str(TOTAL_SCORE) + ' \033[0m'),
-                                               ('\033[91m ' + str(ROBOT_SCORE) + ' \033[0m')))
-            hand = updateHand(hand, userInput)
-        else:
-            print(LINE_SEPERATE)
-            print(centered, 'Invalid word, please try again.')
-            invalid += 1
+            print(centered, 'Invalid Command, please try again.')
 
 
 def compPlayHand(hand, n, dif):
@@ -401,8 +406,6 @@ def compPlayHand(hand, n, dif):
         loader.start()
         word = compChooseWord(hand, n)
         LOADED = True
-
-        time.sleep(3)
 
         if word is None:
             break
