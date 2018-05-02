@@ -165,9 +165,10 @@ def compChooseWord(hand, n):
 
     for handLetter in wordSet:
         for word in wLoad[handLetter]:
-            if (DIFFICULTY == 'e') and (isValidWord(word, hand)) and (len(word) <= 2) or \
-               (DIFFICULTY == 'm') and (isValidWord(word, hand)) and (len(word) <= 4) or \
-               (DIFFICULTY == 'h') and (isValidWord(word, hand)):
+            if ((DIFFICULTY == 'e') and (len(word) > 2)) or \
+               ((DIFFICULTY == 'm') and (len(word) > 4)):
+                break
+            elif isValidWord(word, hand):
                 score = getWordScore(word, n)
                 if (score > bestScore):
                     bestScore = score
@@ -357,7 +358,7 @@ def playHand(hand, n):
             if userInput == '.':
                 break
 
-            elif not isValidWord(userInput, hand):
+            elif (userInput == '') or ((isValidWord(userInput, hand)) == False):
                 print(LINE_SEPERATE)
                 print(centered, 'Invalid word, please try again.')
                 invalid += 1
@@ -402,12 +403,12 @@ def compPlayHand(hand, n, dif):
         print('\n')
         print(centered, "Current Hand: {}".format(displayHand(hand, 'print')))
 
-        LOADED = False
-
-        loader = threading.Thread(target=loading)
-        loader.start()
+        # LOADED = False
+        #
+        # loader = threading.Thread(target=loading)
+        # loader.start()
         word = compChooseWord(hand, n)
-        LOADED = True
+        # LOADED = True
 
         if word is None:
             break
