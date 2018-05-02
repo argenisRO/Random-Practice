@@ -161,7 +161,9 @@ def compChooseWord(hand, n):
     bestScore = 0
     bestWord = None
 
-    for handLetter in displayHand(hand, 'return'):
+    wordSet = set(displayHand(hand, 'return'))
+
+    for handLetter in wordSet:
         for word in wLoad[handLetter]:
             if (DIFFICULTY == 'e') and (isValidWord(word, hand)) and (len(word) <= 2) or \
                (DIFFICULTY == 'm') and (isValidWord(word, hand)) and (len(word) <= 4) or \
