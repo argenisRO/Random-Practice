@@ -2,6 +2,8 @@
 # ArgenisRO
 # 6.00.1x Scrabble Example Personally Constructed
 
+# planning on making this less weird
+
 
 def titleArt():
     center = '\t' * 3

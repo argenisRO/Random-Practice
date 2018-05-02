@@ -51,6 +51,7 @@ def getWordScore(word, n):
     Returns the score of a given word
     Also adds 50 if the word matches the 'n' length
     '''
+
     value = 0
     for letters in word:
         value += SCRABBLE_LETTER_VALUES[letters]
@@ -64,6 +65,7 @@ def displayHand(hand, output):
     '''
     Displays the current hand to the console
     '''
+
     if output == 'print':
         printedHand = []
         for letter in hand:
@@ -84,6 +86,7 @@ def dealHand(n):
     '''
     Returns a randomly generated hand given a 'n' length
     '''
+
     hand = {}
     numVowels = n // 3
 
@@ -103,6 +106,7 @@ def updateHand(hand, word):
     Returns a copy of the current hand updated
     With the values altered based on the 'word' given.
     '''
+
     tempHand = hand.copy()
     for e in word:
         if e in tempHand:
@@ -116,6 +120,7 @@ def calculateHandlen(hand):
     Returns the sum length of a hand by scanning through 'hand'
     And reading all the Values of each Keys.
     '''
+
     counter = 0
     for e in hand:
         stored = hand.get(e)
@@ -180,6 +185,7 @@ def introduction():
     '''
     User greeting message asking for the 'difficulty' level
     '''
+
     global DIFFICULTY
     centered = '\t'*9
     print(LINE_SEPERATE)
@@ -205,6 +211,7 @@ def endGame():
     '''
     Dismisses the player provinding recorded stats.
     '''
+
     centered = '\t'*9
     print(LINE_SEPERATE)
 
@@ -221,6 +228,7 @@ def changeHandSize():
     '''
     Allows the user to change the global HAND_SIZE variable
     '''
+
     global HAND_SIZE
     centered = '\t'*9
     print(LINE_SEPERATE)
@@ -256,6 +264,7 @@ def changeRounds():
     '''
     Allows the user to change the global NUM_OF_ROUND variable
     '''
+
     global NUM_OF_ROUND
     centered = '\t'*9
     print(LINE_SEPERATE)
@@ -291,6 +300,7 @@ def changeDifficulty():
     '''
     Allows the user to change the global DIFFICULTY variable
     '''
+
     global DIFFICULTY
     centered = '\t'*9
     print(LINE_SEPERATE)
@@ -326,6 +336,7 @@ def playHand(hand, n):
     '''
     Interactive User Player Base
     '''
+
     global TOTAL_SCORE
     global ROUND
     invalid = 1
@@ -385,6 +396,7 @@ def compPlayHand(hand, n, dif):
     '''
     Computer plays Scrabble against alone.
     '''
+
     global ROBOT_SCORE
     global LOADED
 
@@ -403,12 +415,7 @@ def compPlayHand(hand, n, dif):
         print('\n')
         print(centered, "Current Hand: {}".format(displayHand(hand, 'print')))
 
-        # LOADED = False
-        #
-        # loader = threading.Thread(target=loading)
-        # loader.start()
         word = compChooseWord(hand, n)
-        # LOADED = True
 
         if word is None:
             break
@@ -431,6 +438,7 @@ def playGame(choice):
     '''
     Scrabble Game
     '''
+
     global TOTAL_SCORE
     global TOTAL_ROUNDS
     global ROBOT_SCORE

@@ -4,7 +4,7 @@
 
 from scrabble import *
 
-# Unit Test
+# Soon to be remade completely
 
 
 def getFrequencyDict(sequence):
