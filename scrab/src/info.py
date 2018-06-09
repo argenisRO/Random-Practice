@@ -104,8 +104,8 @@ def parse_words():
     '''
     word_bank = {}
 
-    with open(c._INFO_words_file, 'r') as word_text:
-        for line in word_text:
+    with open(c._INFO_words_file, 'r') as word_file:
+        for line in word_file:
             word = line.strip().lower()
             if word[0] not in word_bank:
                 word_bank[word[0]] = []

@@ -5,8 +5,6 @@ import src.const as c
 import random as rd
 import string as st
 
-_word_file = '../words.txt'
-
 
 def main():
     '''
@@ -178,8 +176,8 @@ def word_bank(_word_file):
       a list from the provided TXT file.
     '''
     _loaded_words = []
-    with open(_word_file, 'r') as inFile:
-        for line in inFile:
+    with open(c._INFO_words_file, 'r') as word_file:
+        for line in word_file:
             _loaded_words.append(line.strip().lower())
     return _loaded_words
 
