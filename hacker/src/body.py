@@ -13,7 +13,7 @@ def main():
     level = 1
     hints = 0
     word = get_word(level)
-    print("_Guess The Word According To Patterns_\nLevel: {} - Hints: {}".format(level, hints))
+    print(c._TITLE_title_text.format(level, hints))
     encryptd = encrypt(word, 1)
     print(encryptd)
 
@@ -31,9 +31,14 @@ def encrypt(word, num):
         descending()    : returns the word with every other value shifted by 1 in reverse.
                             ex. Hello -> olleI || Good Day -> yaD eppH || One Morning -> gninspN gpQ
 
+      Each function takes the alphabetical value of each letter. For instance: 'a' || 'A' : 0
+                                                                               'z' || 'Z' : 25
+      Then it adds the value converted back to its original letter to 'the_word'.
     '''
+
+    the_word = ''
+
     def regular():
-        the_word = ''
         key = rd.randint(1, 3)
         for letter in word:
             if letter.isupper():
@@ -47,13 +52,11 @@ def encrypt(word, num):
         return the_word
 
     def backwords():
-        the_word = ''
         for letter in range(len(word) - 1, -1, -1):
             the_word += word[letter]
         return the_word
 
     def ascending():
-        the_word = ''
         key = 0
         for letter in word:
             if letter.isupper():
@@ -68,7 +71,6 @@ def encrypt(word, num):
         return the_word
 
     def descending():
-        the_word = ''
         key = 0
         for letter in range(len(word) - 1, -1, -1):
             if word[letter].isupper():
@@ -102,8 +104,8 @@ def parse_word_bank():
     '''
     Parse Word Bank
     - Opens the provided file location in 'c._INFO_words_file'
-      and parses each word with their first letter capitalized.
-      Returns the list.
+      and parses each word with their first letter capitalized
+      into 'loaded_words[]' then returns the list.
 
       O(n)
     '''
@@ -131,14 +133,6 @@ def get_word(level):
                 return word
             elif level >= 4 and len(word) <= 7:
                 return word
-
-
-def display_word(word_to_display):
-    return_word = ""
-    for letter in word_to_display:
-        return_word += " " + letter + " "
-
-    return return_word
 
 
 word_bank = parse_word_bank()
