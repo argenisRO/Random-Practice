@@ -119,25 +119,26 @@ def decrypt(encrypted, unencrypted, hints):
         - Used for randomly selecting a value to reveal to the user utilizing the random.sample func.
           ex. [0,2,4]
               [1,3,5]
+      'hints_nums[]' is a list of numbers the length of the encrypted word.
+        - This will be used to get how many hints the player should receive this function.
 
       Then we make a copy of the encrypted word into a list.
         - This is to be able to change each index's value as we please.
       Next the function steps into a loop that runs the number of hints needed to reveal.
-        ('hints' % c._INFO_num_hints)
-      Then we iterate through the encrypted words indexs checking each time if the index is in the
-        previously assigned list of numbers in 'nums[]'.
-        If it is, we replace that index value with the 'unencrypted' words value at the same index.
+        (hints_nums[hints]) - | 4 : 0 | 3 : 1 | 2 : 2 |
+      Each time replacing the value by a random
 
       Returning the joined version of the 'revealed' list.
 
     '''
-    nums = rd.sample(range(0, len(encrypted)), (hints % c._INFO_num_hints))
+    nums = rd.sample(range(0, len(encrypted)), c._INFO_num_hints)
+    hints_nums = [i for i in range(c._INFO_num_hints, -1, -1)]
 
     revealed = list(encrypted)
-    for hint_i in range(hints % c._INFO_num_hints):
-        for en_i in range(0, len(encrypted)):
-            if en_i in nums:
-                revealed[en_i] = c._TITLE_reveal_word.format(unencrypted[en_i])
+    for hint_i in range(0, hints_nums[hints]):
+        reveal_num = rd.choice(nums)
+        revealed[reveal_num] = "{}".format(unencrypted[reveal_num])
+        print(revealed)
     return ''.join(revealed)
 
 
