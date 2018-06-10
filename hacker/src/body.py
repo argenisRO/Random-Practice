@@ -110,17 +110,35 @@ def encrypt(word, num):
 
 
 def decrypt(encrypted, unencrypted, hints):
-    # Ifmmp
-    # Hello
-    revealed = ""
-    for hint_i in range(c._INFO_num_hints % hints):
-        reveal_letter = rd.randint(0, len(encrypted) - 1)
-        for en_i in range(len(encrypted) - 1):
-            if en_i is reveal_letter:
-                revealed += unencrypted[en_i]
-            else:
-                revealed += encrypted[en_i]
-    return revealed
+    '''
+    Decrypt Word
+    - The function takes in the encrypted version of the word,
+      the unencrypted version and the number of hints the player has remaining.
+
+      'nums[]' is a list of non-repeating random integers the length of ('hints' % c._INFO_num_hints)
+        - Used for randomly selecting a value to reveal to the user utilizing the random.sample func.
+          ex. [0,2,4]
+              [1,3,5]
+
+      Then we make a copy of the encrypted word into a list.
+        - This is to be able to change each index's value as we please.
+      Next the function steps into a loop that runs the number of hints needed to reveal.
+        ('hints' % c._INFO_num_hints)
+      Then we iterate through the encrypted words indexs checking each time if the index is in the
+        previously assigned list of numbers in 'nums[]'.
+        If it is, we replace that index value with the 'unencrypted' words value at the same index.
+
+      Returning the joined version of the 'revealed' list.
+
+    '''
+    nums = rd.sample(range(0, len(encrypted)), (hints % c._INFO_num_hints))
+
+    revealed = list(encrypted)
+    for hint_i in range(hints % c._INFO_num_hints):
+        for en_i in range(0, len(encrypted)):
+            if en_i in nums:
+                revealed[en_i] = c._TITLE_reveal_word.format(unencrypted[en_i])
+    return ''.join(revealed)
 
 
 def parse_word_bank():
