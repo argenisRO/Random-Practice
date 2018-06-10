@@ -11,11 +11,14 @@ def main():
     - Main
     '''
     level = 1
-    hints = 0
+    hints = 4
     word = get_word(level)
-    print(c._TITLE_title_text.format(level, hints))
-    encryptd = encrypt(word, 1)
-    print(encryptd)
+
+    while(hints > 0):
+        print(c._TITLE_title_text.format(level, hints))
+        encryptd = encrypt(word, 1)
+        print(decrypt(encryptd, word, hints))
+        hints -= 1
 
 
 def encrypt(word, num):
@@ -36,9 +39,9 @@ def encrypt(word, num):
       Then it adds the value converted back to its original letter to 'the_word'.
     '''
 
-    the_word = ''
-
     def regular():
+        the_word = ''
+
         key = rd.randint(1, 3)
         for letter in word:
             if letter.isupper():
@@ -52,11 +55,15 @@ def encrypt(word, num):
         return the_word
 
     def backwords():
+        the_word = ''
+
         for letter in range(len(word) - 1, -1, -1):
             the_word += word[letter]
         return the_word
 
     def ascending():
+        the_word = ''
+
         key = 0
         for letter in word:
             if letter.isupper():
@@ -71,6 +78,8 @@ def encrypt(word, num):
         return the_word
 
     def descending():
+        the_word = ''
+
         key = 0
         for letter in range(len(word) - 1, -1, -1):
             if word[letter].isupper():
@@ -98,6 +107,20 @@ def encrypt(word, num):
         return ascending()
     elif num is 3:
         return descending()
+
+
+def decrypt(encrypted, unencrypted, hints):
+    # Ifmmp
+    # Hello
+    revealed = ""
+    for hint_i in range(c._INFO_num_hints % hints):
+        reveal_letter = rd.randint(0, len(encrypted) - 1)
+        for en_i in range(len(encrypted) - 1):
+            if en_i is reveal_letter:
+                revealed += unencrypted[en_i]
+            else:
+                revealed += encrypted[en_i]
+    return revealed
 
 
 def parse_word_bank():
