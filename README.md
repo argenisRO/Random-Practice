@@ -2,7 +2,8 @@
 ###### Command Line Games
 - Hangman
 - Scrab
-- Adventurer
+- Adventurer [WIP]
+- Hacker [WIP]
 
 Created a few mini games in python which can be ran through the terminal.  
 This project started out as a learning experiment and slowly became its own project.  
