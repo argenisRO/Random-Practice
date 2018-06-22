@@ -16,3 +16,4 @@ _USER_guess_correct = "\033[92mGood\033[0m:{0:>{1}}\n"
 _USER_guess_wrong = "\033[91mBad\033[0m:{0:>{1}}\n"
 _USER_guess_repeat = "\033[93mAlready Guessed\033[0m:{0:>{1}}\n"
 _INFO_pos_justify = 50
+_INFO_words_file = '../words.txt'

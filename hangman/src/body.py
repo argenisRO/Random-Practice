@@ -16,7 +16,7 @@ def main():
       - '_user_guess_total' : Users choice of guesses
     '''
     # Fetched Variables
-    _word_bank = word_bank(_word_file)
+    _word_bank = word_bank()
     _word_choice = random_word(_word_bank)
     _letters_guessed = []
 
@@ -169,7 +169,7 @@ def available_letters(_letters_guessed):
     return ''.join(_alpha_letters)
 
 
-def word_bank(_word_file):
+def word_bank():
     '''
     Word Bank Loader
     - Packs all the words from the word bank into
