@@ -2,7 +2,7 @@
 # Hangman
 # - Argenis Rodriguez
 
-from src.body import *
+from src.body import display_current_w, correct_guess, available_letters, right_justify
 import unittest
 
 

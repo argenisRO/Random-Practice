@@ -2,7 +2,7 @@
 # Scrab
 # - Argenis Rodriguez
 
-from src.body import *
+from src.body import word_score, update_hand, word_bank, check_validation
 import unittest
 from string import ascii_lowercase as alph
 
@@ -56,9 +56,6 @@ class TestScrab(unittest.TestCase):
         self.assertFalse(check_validation(['r', 'r', 'n', 'n', 'o', 'n'], ''))
         # Both Empty Test
         self.assertFalse(check_validation([], ''))
-
-    def get_user_input(self):
-        self.assertEqual()
 
 
 if __name__ == '__main__':

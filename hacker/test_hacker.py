@@ -2,7 +2,7 @@
 # Hacker
 # - Argenis Rodriguez
 
-from src.body import *
+from src.body import encrypt
 import unittest
 
 
